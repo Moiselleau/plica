@@ -12,6 +12,8 @@ services:
       DB_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       JWT_EXPIRATION: ${JWT_EXPIRATION}
+      LOG_LEVEL: ${LOG_LEVEL}
+      SERVICE_NAME: ${SERVICE_NAME}
     depends_on:
       - migrate
     restart: on-failure
@@ -27,6 +29,8 @@ services:
       DB_URL: postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}
     depends_on:
       db:
+        condition: service_healthy
+      mqtt-broker:
         condition: service_healthy
   db:
     image: postgres:12
@@ -45,5 +49,20 @@ services:
       timeout: 45s
       interval: 10s
       retries: 10
+  mqtt-broker:
+    image: emqx:5.4.0
+    ports:
+      - ${MQTT_PORT}:1883
+      - ${MQTT_WS_PORT}:8083
+      - ${MQTT_WEB_UI_PORT}:18083
+    healthcheck:
+      test:
+        - CMD
+        - /opt/emqx/bin/emqx
+        - ctl
+        - status
+      interval: 5s
+      timeout: 25s
+      retries: 5
 volumes:
   postgres: ~
