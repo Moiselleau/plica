@@ -1,14 +1,16 @@
 import { SortOrder } from "../../util/SortOrder";
 
 export type UserOrderByInput = {
-  ProfilId?: SortOrder;
+  authMethod?: SortOrder;
   createdAt?: SortOrder;
   email?: SortOrder;
-  firstName?: SortOrder;
+  emailVerified?: SortOrder;
   id?: SortOrder;
-  lastName?: SortOrder;
-  password?: SortOrder;
-  roles?: SortOrder;
+  passwordHash?: SortOrder;
+  phoneNumber?: SortOrder;
+  profileId?: SortOrder;
+  subscriptionId?: SortOrder;
+  trustScore?: SortOrder;
   updatedAt?: SortOrder;
-  username?: SortOrder;
+  verificationStatus?: SortOrder;
 };

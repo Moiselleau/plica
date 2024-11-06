@@ -11,49 +11,54 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { ObjectType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { Match } from "../../match/base/Match";
+import { EnumUserAuthMethod } from "./EnumUserAuthMethod";
+
 import {
+  IsEnum,
   ValidateNested,
   IsOptional,
   IsDate,
   IsString,
   MaxLength,
+  IsBoolean,
+  IsNumber,
+  Max,
 } from "class-validator";
+
+import { UserBadge } from "../../userBadge/base/UserBadge";
 import { Type } from "class-transformer";
-import { Photo } from "../../photo/base/Photo";
-import { Profil } from "../../profil/base/Profil";
-import { IsJSONValue } from "../../validators";
-import { GraphQLJSON } from "graphql-type-json";
-import { JsonValue } from "type-fest";
+import { EventParticipant } from "../../eventParticipant/base/EventParticipant";
+import { GroupMember } from "../../groupMember/base/GroupMember";
+import { Notification } from "../../notification/base/Notification";
+import { Profile } from "../../profile/base/Profile";
+import { Like } from "../../like/base/Like";
+import { Message } from "../../message/base/Message";
+import { Report } from "../../report/base/Report";
+import { SocialAccount } from "../../socialAccount/base/SocialAccount";
+import { Story } from "../../story/base/Story";
+import { Subscription } from "../../subscription/base/Subscription";
+import { EnumUserVerificationStatus } from "./EnumUserVerificationStatus";
 
 @ObjectType()
 class User {
   @ApiProperty({
-    required: false,
-    type: () => [Match],
+    required: true,
+    enum: EnumUserAuthMethod,
   })
-  @ValidateNested()
-  @Type(() => Match)
-  @IsOptional()
-  Match?: Array<Match>;
+  @IsEnum(EnumUserAuthMethod)
+  @Field(() => EnumUserAuthMethod, {
+    nullable: true,
+  })
+  authMethod?: "EMAIL" | "GOOGLE" | "FACEBOOK" | "INSTAGRAM";
 
   @ApiProperty({
     required: false,
-    type: () => [Photo],
+    type: () => [UserBadge],
   })
   @ValidateNested()
-  @Type(() => Photo)
+  @Type(() => UserBadge)
   @IsOptional()
-  Photo?: Array<Photo>;
-
-  @ApiProperty({
-    required: false,
-    type: () => Profil,
-  })
-  @ValidateNested()
-  @Type(() => Profil)
-  @IsOptional()
-  Profil?: Profil | null;
+  badges?: Array<UserBadge>;
 
   @ApiProperty({
     required: true,
@@ -64,27 +69,39 @@ class User {
   createdAt!: Date;
 
   @ApiProperty({
-    required: false,
-    type: String,
-  })
-  @IsString()
-  @IsOptional()
-  @Field(() => String, {
-    nullable: true,
-  })
-  email!: string | null;
-
-  @ApiProperty({
-    required: false,
+    required: true,
     type: String,
   })
   @IsString()
   @MaxLength(256)
-  @IsOptional()
-  @Field(() => String, {
-    nullable: true,
+  @Field(() => String)
+  email!: string;
+
+  @ApiProperty({
+    required: true,
+    type: Boolean,
   })
-  firstName!: string | null;
+  @IsBoolean()
+  @Field(() => Boolean)
+  emailVerified!: boolean;
+
+  @ApiProperty({
+    required: false,
+    type: () => [EventParticipant],
+  })
+  @ValidateNested()
+  @Type(() => EventParticipant)
+  @IsOptional()
+  events?: Array<EventParticipant>;
+
+  @ApiProperty({
+    required: false,
+    type: () => [GroupMember],
+  })
+  @ValidateNested()
+  @Type(() => GroupMember)
+  @IsOptional()
+  groups?: Array<GroupMember>;
 
   @ApiProperty({
     required: true,
@@ -96,6 +113,15 @@ class User {
 
   @ApiProperty({
     required: false,
+    type: () => [Notification],
+  })
+  @ValidateNested()
+  @Type(() => Notification)
+  @IsOptional()
+  notifications?: Array<Notification>;
+
+  @ApiProperty({
+    required: false,
     type: String,
   })
   @IsString()
@@ -104,14 +130,109 @@ class User {
   @Field(() => String, {
     nullable: true,
   })
-  lastName!: string | null;
+  passwordHash!: string | null;
+
+  @ApiProperty({
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @MaxLength(256)
+  @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+  })
+  phoneNumber!: string | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => Profile,
+  })
+  @ValidateNested()
+  @Type(() => Profile)
+  @IsOptional()
+  profile?: Profile | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => [Like],
+  })
+  @ValidateNested()
+  @Type(() => Like)
+  @IsOptional()
+  receivedLikes?: Array<Like>;
+
+  @ApiProperty({
+    required: false,
+    type: () => [Message],
+  })
+  @ValidateNested()
+  @Type(() => Message)
+  @IsOptional()
+  receivedMessages?: Array<Message>;
+
+  @ApiProperty({
+    required: false,
+    type: () => [Report],
+  })
+  @ValidateNested()
+  @Type(() => Report)
+  @IsOptional()
+  reports?: Array<Report>;
+
+  @ApiProperty({
+    required: false,
+    type: () => [Like],
+  })
+  @ValidateNested()
+  @Type(() => Like)
+  @IsOptional()
+  sentLikes?: Array<Like>;
+
+  @ApiProperty({
+    required: false,
+    type: () => [Message],
+  })
+  @ValidateNested()
+  @Type(() => Message)
+  @IsOptional()
+  sentMessages?: Array<Message>;
+
+  @ApiProperty({
+    required: false,
+    type: () => [SocialAccount],
+  })
+  @ValidateNested()
+  @Type(() => SocialAccount)
+  @IsOptional()
+  socialAccounts?: Array<SocialAccount>;
+
+  @ApiProperty({
+    required: false,
+    type: () => [Story],
+  })
+  @ValidateNested()
+  @Type(() => Story)
+  @IsOptional()
+  stories?: Array<Story>;
+
+  @ApiProperty({
+    required: false,
+    type: () => Subscription,
+  })
+  @ValidateNested()
+  @Type(() => Subscription)
+  @IsOptional()
+  subscription?: Subscription | null;
 
   @ApiProperty({
     required: true,
+    type: Number,
   })
-  @IsJSONValue()
-  @Field(() => GraphQLJSON)
-  roles!: JsonValue;
+  @IsNumber()
+  @Max(99999999999)
+  @Field(() => Number)
+  trustScore!: number;
 
   @ApiProperty({
     required: true,
@@ -123,11 +244,13 @@ class User {
 
   @ApiProperty({
     required: true,
-    type: String,
+    enum: EnumUserVerificationStatus,
   })
-  @IsString()
-  @Field(() => String)
-  username!: string;
+  @IsEnum(EnumUserVerificationStatus)
+  @Field(() => EnumUserVerificationStatus, {
+    nullable: true,
+  })
+  verificationStatus?: "PENDING" | "VERIFIED" | "REJECTED";
 }
 
 export { User as User };

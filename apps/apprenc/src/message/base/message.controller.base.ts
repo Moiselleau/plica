@@ -16,99 +16,109 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
-import * as nestAccessControl from "nest-access-control";
-import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { MessageService } from "../message.service";
-import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
-import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { MessageCreateInput } from "./MessageCreateInput";
 import { Message } from "./Message";
 import { MessageFindManyArgs } from "./MessageFindManyArgs";
 import { MessageWhereUniqueInput } from "./MessageWhereUniqueInput";
 import { MessageUpdateInput } from "./MessageUpdateInput";
-import { MatchFindManyArgs } from "../../match/base/MatchFindManyArgs";
-import { Match } from "../../match/base/Match";
-import { MatchWhereUniqueInput } from "../../match/base/MatchWhereUniqueInput";
 
-@swagger.ApiBearerAuth()
-@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class MessageControllerBase {
-  constructor(
-    protected readonly service: MessageService,
-    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
-  ) {}
-  @common.UseInterceptors(AclValidateRequestInterceptor)
+  constructor(protected readonly service: MessageService) {}
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Message })
-  @nestAccessControl.UseRoles({
-    resource: "Message",
-    action: "create",
-    possession: "any",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async createMessage(
     @common.Body() data: MessageCreateInput
   ): Promise<Message> {
     return await this.service.createMessage({
-      data: data,
+      data: {
+        ...data,
+
+        receiver: {
+          connect: data.receiver,
+        },
+
+        sender: {
+          connect: data.sender,
+        },
+      },
       select: {
-        contenu: true,
+        content: true,
         createdAt: true,
         id: true,
-        updatedAt: true,
+        mediaUrl: true,
+        readAt: true,
+
+        receiver: {
+          select: {
+            id: true,
+          },
+        },
+
+        sender: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [Message] })
   @ApiNestedQuery(MessageFindManyArgs)
-  @nestAccessControl.UseRoles({
-    resource: "Message",
-    action: "read",
-    possession: "any",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async messages(@common.Req() request: Request): Promise<Message[]> {
     const args = plainToClass(MessageFindManyArgs, request.query);
     return this.service.messages({
       ...args,
       select: {
-        contenu: true,
+        content: true,
         createdAt: true,
         id: true,
-        updatedAt: true,
+        mediaUrl: true,
+        readAt: true,
+
+        receiver: {
+          select: {
+            id: true,
+          },
+        },
+
+        sender: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Message })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
-  @nestAccessControl.UseRoles({
-    resource: "Message",
-    action: "read",
-    possession: "own",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async message(
     @common.Param() params: MessageWhereUniqueInput
   ): Promise<Message | null> {
     const result = await this.service.message({
       where: params,
       select: {
-        contenu: true,
+        content: true,
         createdAt: true,
         id: true,
-        updatedAt: true,
+        mediaUrl: true,
+        readAt: true,
+
+        receiver: {
+          select: {
+            id: true,
+          },
+        },
+
+        sender: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
     if (result === null) {
@@ -119,18 +129,9 @@ export class MessageControllerBase {
     return result;
   }
 
-  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Message })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
-  @nestAccessControl.UseRoles({
-    resource: "Message",
-    action: "update",
-    possession: "any",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async updateMessage(
     @common.Param() params: MessageWhereUniqueInput,
     @common.Body() data: MessageUpdateInput
@@ -138,12 +139,35 @@ export class MessageControllerBase {
     try {
       return await this.service.updateMessage({
         where: params,
-        data: data,
+        data: {
+          ...data,
+
+          receiver: {
+            connect: data.receiver,
+          },
+
+          sender: {
+            connect: data.sender,
+          },
+        },
         select: {
-          contenu: true,
+          content: true,
           createdAt: true,
           id: true,
-          updatedAt: true,
+          mediaUrl: true,
+          readAt: true,
+
+          receiver: {
+            select: {
+              id: true,
+            },
+          },
+
+          sender: {
+            select: {
+              id: true,
+            },
+          },
         },
       });
     } catch (error) {
@@ -159,14 +183,6 @@ export class MessageControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Message })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
-  @nestAccessControl.UseRoles({
-    resource: "Message",
-    action: "delete",
-    possession: "any",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async deleteMessage(
     @common.Param() params: MessageWhereUniqueInput
   ): Promise<Message | null> {
@@ -174,10 +190,23 @@ export class MessageControllerBase {
       return await this.service.deleteMessage({
         where: params,
         select: {
-          contenu: true,
+          content: true,
           createdAt: true,
           id: true,
-          updatedAt: true,
+          mediaUrl: true,
+          readAt: true,
+
+          receiver: {
+            select: {
+              id: true,
+            },
+          },
+
+          sender: {
+            select: {
+              id: true,
+            },
+          },
         },
       });
     } catch (error) {
@@ -188,100 +217,5 @@ export class MessageControllerBase {
       }
       throw error;
     }
-  }
-
-  @common.UseInterceptors(AclFilterResponseInterceptor)
-  @common.Get("/:id/match")
-  @ApiNestedQuery(MatchFindManyArgs)
-  @nestAccessControl.UseRoles({
-    resource: "Match",
-    action: "read",
-    possession: "any",
-  })
-  async findMatch(
-    @common.Req() request: Request,
-    @common.Param() params: MessageWhereUniqueInput
-  ): Promise<Match[]> {
-    const query = plainToClass(MatchFindManyArgs, request.query);
-    const results = await this.service.findMatch(params.id, {
-      ...query,
-      select: {
-        createdAt: true,
-        id: true,
-        updatedAt: true,
-      },
-    });
-    if (results === null) {
-      throw new errors.NotFoundException(
-        `No resource was found for ${JSON.stringify(params)}`
-      );
-    }
-    return results;
-  }
-
-  @common.Post("/:id/match")
-  @nestAccessControl.UseRoles({
-    resource: "Message",
-    action: "update",
-    possession: "any",
-  })
-  async connectMatch(
-    @common.Param() params: MessageWhereUniqueInput,
-    @common.Body() body: MatchWhereUniqueInput[]
-  ): Promise<void> {
-    const data = {
-      match: {
-        connect: body,
-      },
-    };
-    await this.service.updateMessage({
-      where: params,
-      data,
-      select: { id: true },
-    });
-  }
-
-  @common.Patch("/:id/match")
-  @nestAccessControl.UseRoles({
-    resource: "Message",
-    action: "update",
-    possession: "any",
-  })
-  async updateMatch(
-    @common.Param() params: MessageWhereUniqueInput,
-    @common.Body() body: MatchWhereUniqueInput[]
-  ): Promise<void> {
-    const data = {
-      match: {
-        set: body,
-      },
-    };
-    await this.service.updateMessage({
-      where: params,
-      data,
-      select: { id: true },
-    });
-  }
-
-  @common.Delete("/:id/match")
-  @nestAccessControl.UseRoles({
-    resource: "Message",
-    action: "update",
-    possession: "any",
-  })
-  async disconnectMatch(
-    @common.Param() params: MessageWhereUniqueInput,
-    @common.Body() body: MatchWhereUniqueInput[]
-  ): Promise<void> {
-    const data = {
-      match: {
-        disconnect: body,
-      },
-    };
-    await this.service.updateMessage({
-      where: params,
-      data,
-      select: { id: true },
-    });
   }
 }

@@ -1,10 +1,9 @@
-import { User } from "../user/User";
+import { Profile } from "../profile/Profile";
 
 export type Photo = {
-  createdAt: Date;
   id: string;
-  isProfilPhoto: boolean | null;
-  updatedAt: Date;
-  url: string | null;
-  utilisateurs?: User | null;
+  isMain: boolean;
+  profile?: Profile;
+  url: string;
+  verified: boolean;
 };

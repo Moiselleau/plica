@@ -1,6 +1,9 @@
-import { MatchUpdateManyWithoutMessagesInput } from "./MatchUpdateManyWithoutMessagesInput";
+import { UserWhereUniqueInput } from "../user/UserWhereUniqueInput";
 
 export type MessageUpdateInput = {
-  contenu?: string | null;
-  match?: MatchUpdateManyWithoutMessagesInput;
+  content?: string;
+  mediaUrl?: string | null;
+  readAt?: Date | null;
+  receiver?: UserWhereUniqueInput;
+  sender?: UserWhereUniqueInput;
 };

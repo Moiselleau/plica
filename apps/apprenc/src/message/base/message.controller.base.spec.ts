@@ -18,30 +18,34 @@ import { MessageService } from "../message.service";
 const nonExistingId = "nonExistingId";
 const existingId = "existingId";
 const CREATE_INPUT = {
-  contenu: "exampleContenu",
+  content: "exampleContent",
   createdAt: new Date(),
   id: "exampleId",
-  updatedAt: new Date(),
+  mediaUrl: "exampleMediaUrl",
+  readAt: new Date(),
 };
 const CREATE_RESULT = {
-  contenu: "exampleContenu",
+  content: "exampleContent",
   createdAt: new Date(),
   id: "exampleId",
-  updatedAt: new Date(),
+  mediaUrl: "exampleMediaUrl",
+  readAt: new Date(),
 };
 const FIND_MANY_RESULT = [
   {
-    contenu: "exampleContenu",
+    content: "exampleContent",
     createdAt: new Date(),
     id: "exampleId",
-    updatedAt: new Date(),
+    mediaUrl: "exampleMediaUrl",
+    readAt: new Date(),
   },
 ];
 const FIND_ONE_RESULT = {
-  contenu: "exampleContenu",
+  content: "exampleContent",
   createdAt: new Date(),
   id: "exampleId",
-  updatedAt: new Date(),
+  mediaUrl: "exampleMediaUrl",
+  readAt: new Date(),
 };
 
 const service = {
@@ -127,7 +131,7 @@ describe("Message", () => {
       .expect({
         ...CREATE_RESULT,
         createdAt: CREATE_RESULT.createdAt.toISOString(),
-        updatedAt: CREATE_RESULT.updatedAt.toISOString(),
+        readAt: CREATE_RESULT.readAt.toISOString(),
       });
   });
 
@@ -139,7 +143,7 @@ describe("Message", () => {
         {
           ...FIND_MANY_RESULT[0],
           createdAt: FIND_MANY_RESULT[0].createdAt.toISOString(),
-          updatedAt: FIND_MANY_RESULT[0].updatedAt.toISOString(),
+          readAt: FIND_MANY_RESULT[0].readAt.toISOString(),
         },
       ]);
   });
@@ -162,7 +166,7 @@ describe("Message", () => {
       .expect({
         ...FIND_ONE_RESULT,
         createdAt: FIND_ONE_RESULT.createdAt.toISOString(),
-        updatedAt: FIND_ONE_RESULT.updatedAt.toISOString(),
+        readAt: FIND_ONE_RESULT.readAt.toISOString(),
       });
   });
 
@@ -175,7 +179,7 @@ describe("Message", () => {
       .expect({
         ...CREATE_RESULT,
         createdAt: CREATE_RESULT.createdAt.toISOString(),
-        updatedAt: CREATE_RESULT.updatedAt.toISOString(),
+        readAt: CREATE_RESULT.readAt.toISOString(),
       })
       .then(function () {
         agent

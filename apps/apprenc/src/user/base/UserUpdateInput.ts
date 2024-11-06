@@ -11,71 +11,57 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { MatchUpdateManyWithoutUsersInput } from "./MatchUpdateManyWithoutUsersInput";
+import { EnumUserAuthMethod } from "./EnumUserAuthMethod";
+
 import {
-  ValidateNested,
+  IsEnum,
   IsOptional,
+  ValidateNested,
   IsString,
   MaxLength,
+  IsBoolean,
+  IsNumber,
+  Max,
 } from "class-validator";
+
+import { UserBadgeUpdateManyWithoutUsersInput } from "./UserBadgeUpdateManyWithoutUsersInput";
 import { Type } from "class-transformer";
-import { Match } from "../../match/base/Match";
-import { PhotoUpdateManyWithoutUsersInput } from "./PhotoUpdateManyWithoutUsersInput";
-import { Photo } from "../../photo/base/Photo";
-import { ProfilWhereUniqueInput } from "../../profil/base/ProfilWhereUniqueInput";
-import { Profil } from "../../profil/base/Profil";
-import { IsJSONValue } from "../../validators";
-import { GraphQLJSON } from "graphql-type-json";
-import { InputJsonValue } from "../../types";
+import { EventParticipantUpdateManyWithoutUsersInput } from "./EventParticipantUpdateManyWithoutUsersInput";
+import { GroupMemberUpdateManyWithoutUsersInput } from "./GroupMemberUpdateManyWithoutUsersInput";
+import { NotificationUpdateManyWithoutUsersInput } from "./NotificationUpdateManyWithoutUsersInput";
+import { ProfileWhereUniqueInput } from "../../profile/base/ProfileWhereUniqueInput";
+import { LikeUpdateManyWithoutUsersInput } from "./LikeUpdateManyWithoutUsersInput";
+import { MessageUpdateManyWithoutUsersInput } from "./MessageUpdateManyWithoutUsersInput";
+import { ReportUpdateManyWithoutUsersInput } from "./ReportUpdateManyWithoutUsersInput";
+import { SocialAccountUpdateManyWithoutUsersInput } from "./SocialAccountUpdateManyWithoutUsersInput";
+import { StoryUpdateManyWithoutUsersInput } from "./StoryUpdateManyWithoutUsersInput";
+import { SubscriptionWhereUniqueInput } from "../../subscription/base/SubscriptionWhereUniqueInput";
+import { EnumUserVerificationStatus } from "./EnumUserVerificationStatus";
 
 @InputType()
 class UserUpdateInput {
   @ApiProperty({
     required: false,
-    type: () => MatchUpdateManyWithoutUsersInput,
+    enum: EnumUserAuthMethod,
   })
-  @ValidateNested()
-  @Type(() => MatchUpdateManyWithoutUsersInput)
+  @IsEnum(EnumUserAuthMethod)
   @IsOptional()
-  @Field(() => MatchUpdateManyWithoutUsersInput, {
+  @Field(() => EnumUserAuthMethod, {
     nullable: true,
   })
-  Match?: MatchUpdateManyWithoutUsersInput;
+  authMethod?: "EMAIL" | "GOOGLE" | "FACEBOOK" | "INSTAGRAM";
 
   @ApiProperty({
     required: false,
-    type: () => PhotoUpdateManyWithoutUsersInput,
+    type: () => UserBadgeUpdateManyWithoutUsersInput,
   })
   @ValidateNested()
-  @Type(() => PhotoUpdateManyWithoutUsersInput)
+  @Type(() => UserBadgeUpdateManyWithoutUsersInput)
   @IsOptional()
-  @Field(() => PhotoUpdateManyWithoutUsersInput, {
+  @Field(() => UserBadgeUpdateManyWithoutUsersInput, {
     nullable: true,
   })
-  Photo?: PhotoUpdateManyWithoutUsersInput;
-
-  @ApiProperty({
-    required: false,
-    type: () => ProfilWhereUniqueInput,
-  })
-  @ValidateNested()
-  @Type(() => ProfilWhereUniqueInput)
-  @IsOptional()
-  @Field(() => ProfilWhereUniqueInput, {
-    nullable: true,
-  })
-  Profil?: ProfilWhereUniqueInput | null;
-
-  @ApiProperty({
-    required: false,
-    type: String,
-  })
-  @IsString()
-  @IsOptional()
-  @Field(() => String, {
-    nullable: true,
-  })
-  email?: string | null;
+  badges?: UserBadgeUpdateManyWithoutUsersInput;
 
   @ApiProperty({
     required: false,
@@ -87,7 +73,54 @@ class UserUpdateInput {
   @Field(() => String, {
     nullable: true,
   })
-  firstName?: string | null;
+  email?: string;
+
+  @ApiProperty({
+    required: false,
+    type: Boolean,
+  })
+  @IsBoolean()
+  @IsOptional()
+  @Field(() => Boolean, {
+    nullable: true,
+  })
+  emailVerified?: boolean;
+
+  @ApiProperty({
+    required: false,
+    type: () => EventParticipantUpdateManyWithoutUsersInput,
+  })
+  @ValidateNested()
+  @Type(() => EventParticipantUpdateManyWithoutUsersInput)
+  @IsOptional()
+  @Field(() => EventParticipantUpdateManyWithoutUsersInput, {
+    nullable: true,
+  })
+  events?: EventParticipantUpdateManyWithoutUsersInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => GroupMemberUpdateManyWithoutUsersInput,
+  })
+  @ValidateNested()
+  @Type(() => GroupMemberUpdateManyWithoutUsersInput)
+  @IsOptional()
+  @Field(() => GroupMemberUpdateManyWithoutUsersInput, {
+    nullable: true,
+  })
+  groups?: GroupMemberUpdateManyWithoutUsersInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => NotificationUpdateManyWithoutUsersInput,
+  })
+  @ValidateNested()
+  @Type(() => NotificationUpdateManyWithoutUsersInput)
+  @IsOptional()
+  @Field(() => NotificationUpdateManyWithoutUsersInput, {
+    nullable: true,
+  })
+  notifications?: NotificationUpdateManyWithoutUsersInput;
 
   @ApiProperty({
     required: false,
@@ -99,39 +132,150 @@ class UserUpdateInput {
   @Field(() => String, {
     nullable: true,
   })
-  lastName?: string | null;
+  passwordHash?: string | null;
 
   @ApiProperty({
     required: false,
     type: String,
   })
   @IsString()
+  @MaxLength(256)
   @IsOptional()
   @Field(() => String, {
     nullable: true,
   })
-  password?: string;
+  phoneNumber?: string | null;
 
   @ApiProperty({
     required: false,
+    type: () => ProfileWhereUniqueInput,
   })
-  @IsJSONValue()
+  @ValidateNested()
+  @Type(() => ProfileWhereUniqueInput)
   @IsOptional()
-  @Field(() => GraphQLJSON, {
+  @Field(() => ProfileWhereUniqueInput, {
     nullable: true,
   })
-  roles?: InputJsonValue;
+  profile?: ProfileWhereUniqueInput | null;
 
   @ApiProperty({
     required: false,
-    type: String,
+    type: () => LikeUpdateManyWithoutUsersInput,
   })
-  @IsString()
+  @ValidateNested()
+  @Type(() => LikeUpdateManyWithoutUsersInput)
   @IsOptional()
-  @Field(() => String, {
+  @Field(() => LikeUpdateManyWithoutUsersInput, {
     nullable: true,
   })
-  username?: string;
+  receivedLikes?: LikeUpdateManyWithoutUsersInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => MessageUpdateManyWithoutUsersInput,
+  })
+  @ValidateNested()
+  @Type(() => MessageUpdateManyWithoutUsersInput)
+  @IsOptional()
+  @Field(() => MessageUpdateManyWithoutUsersInput, {
+    nullable: true,
+  })
+  receivedMessages?: MessageUpdateManyWithoutUsersInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => ReportUpdateManyWithoutUsersInput,
+  })
+  @ValidateNested()
+  @Type(() => ReportUpdateManyWithoutUsersInput)
+  @IsOptional()
+  @Field(() => ReportUpdateManyWithoutUsersInput, {
+    nullable: true,
+  })
+  reports?: ReportUpdateManyWithoutUsersInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => LikeUpdateManyWithoutUsersInput,
+  })
+  @ValidateNested()
+  @Type(() => LikeUpdateManyWithoutUsersInput)
+  @IsOptional()
+  @Field(() => LikeUpdateManyWithoutUsersInput, {
+    nullable: true,
+  })
+  sentLikes?: LikeUpdateManyWithoutUsersInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => MessageUpdateManyWithoutUsersInput,
+  })
+  @ValidateNested()
+  @Type(() => MessageUpdateManyWithoutUsersInput)
+  @IsOptional()
+  @Field(() => MessageUpdateManyWithoutUsersInput, {
+    nullable: true,
+  })
+  sentMessages?: MessageUpdateManyWithoutUsersInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => SocialAccountUpdateManyWithoutUsersInput,
+  })
+  @ValidateNested()
+  @Type(() => SocialAccountUpdateManyWithoutUsersInput)
+  @IsOptional()
+  @Field(() => SocialAccountUpdateManyWithoutUsersInput, {
+    nullable: true,
+  })
+  socialAccounts?: SocialAccountUpdateManyWithoutUsersInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => StoryUpdateManyWithoutUsersInput,
+  })
+  @ValidateNested()
+  @Type(() => StoryUpdateManyWithoutUsersInput)
+  @IsOptional()
+  @Field(() => StoryUpdateManyWithoutUsersInput, {
+    nullable: true,
+  })
+  stories?: StoryUpdateManyWithoutUsersInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => SubscriptionWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => SubscriptionWhereUniqueInput)
+  @IsOptional()
+  @Field(() => SubscriptionWhereUniqueInput, {
+    nullable: true,
+  })
+  subscription?: SubscriptionWhereUniqueInput | null;
+
+  @ApiProperty({
+    required: false,
+    type: Number,
+  })
+  @IsNumber()
+  @Max(99999999999)
+  @IsOptional()
+  @Field(() => Number, {
+    nullable: true,
+  })
+  trustScore?: number;
+
+  @ApiProperty({
+    required: false,
+    enum: EnumUserVerificationStatus,
+  })
+  @IsEnum(EnumUserVerificationStatus)
+  @IsOptional()
+  @Field(() => EnumUserVerificationStatus, {
+    nullable: true,
+  })
+  verificationStatus?: "PENDING" | "VERIFIED" | "REJECTED";
 }
 
 export { UserUpdateInput as UserUpdateInput };

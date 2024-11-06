@@ -15,36 +15,63 @@ import {
   IsString,
   MaxLength,
   IsOptional,
+  IsDate,
   ValidateNested,
 } from "class-validator";
-import { MatchCreateNestedManyWithoutMessagesInput } from "./MatchCreateNestedManyWithoutMessagesInput";
 import { Type } from "class-transformer";
+import { UserWhereUniqueInput } from "../../user/base/UserWhereUniqueInput";
 
 @InputType()
 class MessageCreateInput {
+  @ApiProperty({
+    required: true,
+    type: String,
+  })
+  @IsString()
+  @MaxLength(256)
+  @Field(() => String)
+  content!: string;
+
   @ApiProperty({
     required: false,
     type: String,
   })
   @IsString()
-  @MaxLength(1000)
+  @MaxLength(256)
   @IsOptional()
   @Field(() => String, {
     nullable: true,
   })
-  contenu?: string | null;
+  mediaUrl?: string | null;
 
   @ApiProperty({
     required: false,
-    type: () => MatchCreateNestedManyWithoutMessagesInput,
   })
-  @ValidateNested()
-  @Type(() => MatchCreateNestedManyWithoutMessagesInput)
+  @IsDate()
+  @Type(() => Date)
   @IsOptional()
-  @Field(() => MatchCreateNestedManyWithoutMessagesInput, {
+  @Field(() => Date, {
     nullable: true,
   })
-  match?: MatchCreateNestedManyWithoutMessagesInput;
+  readAt?: Date | null;
+
+  @ApiProperty({
+    required: true,
+    type: () => UserWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => UserWhereUniqueInput)
+  @Field(() => UserWhereUniqueInput)
+  receiver!: UserWhereUniqueInput;
+
+  @ApiProperty({
+    required: true,
+    type: () => UserWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => UserWhereUniqueInput)
+  @Field(() => UserWhereUniqueInput)
+  sender!: UserWhereUniqueInput;
 }
 
 export { MessageCreateInput as MessageCreateInput };

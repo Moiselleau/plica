@@ -18,34 +18,30 @@ import { PhotoService } from "../photo.service";
 const nonExistingId = "nonExistingId";
 const existingId = "existingId";
 const CREATE_INPUT = {
-  createdAt: new Date(),
   id: "exampleId",
-  isProfilPhoto: "true",
-  updatedAt: new Date(),
+  isMain: "true",
   url: "exampleUrl",
+  verified: "true",
 };
 const CREATE_RESULT = {
-  createdAt: new Date(),
   id: "exampleId",
-  isProfilPhoto: "true",
-  updatedAt: new Date(),
+  isMain: "true",
   url: "exampleUrl",
+  verified: "true",
 };
 const FIND_MANY_RESULT = [
   {
-    createdAt: new Date(),
     id: "exampleId",
-    isProfilPhoto: "true",
-    updatedAt: new Date(),
+    isMain: "true",
     url: "exampleUrl",
+    verified: "true",
   },
 ];
 const FIND_ONE_RESULT = {
-  createdAt: new Date(),
   id: "exampleId",
-  isProfilPhoto: "true",
-  updatedAt: new Date(),
+  isMain: "true",
   url: "exampleUrl",
+  verified: "true",
 };
 
 const service = {
@@ -128,24 +124,14 @@ describe("Photo", () => {
       .post("/photos")
       .send(CREATE_INPUT)
       .expect(HttpStatus.CREATED)
-      .expect({
-        ...CREATE_RESULT,
-        createdAt: CREATE_RESULT.createdAt.toISOString(),
-        updatedAt: CREATE_RESULT.updatedAt.toISOString(),
-      });
+      .expect(CREATE_RESULT);
   });
 
   test("GET /photos", async () => {
     await request(app.getHttpServer())
       .get("/photos")
       .expect(HttpStatus.OK)
-      .expect([
-        {
-          ...FIND_MANY_RESULT[0],
-          createdAt: FIND_MANY_RESULT[0].createdAt.toISOString(),
-          updatedAt: FIND_MANY_RESULT[0].updatedAt.toISOString(),
-        },
-      ]);
+      .expect([FIND_MANY_RESULT[0]]);
   });
 
   test("GET /photos/:id non existing", async () => {
@@ -163,11 +149,7 @@ describe("Photo", () => {
     await request(app.getHttpServer())
       .get(`${"/photos"}/${existingId}`)
       .expect(HttpStatus.OK)
-      .expect({
-        ...FIND_ONE_RESULT,
-        createdAt: FIND_ONE_RESULT.createdAt.toISOString(),
-        updatedAt: FIND_ONE_RESULT.updatedAt.toISOString(),
-      });
+      .expect(FIND_ONE_RESULT);
   });
 
   test("POST /photos existing resource", async () => {
@@ -176,11 +158,7 @@ describe("Photo", () => {
       .post("/photos")
       .send(CREATE_INPUT)
       .expect(HttpStatus.CREATED)
-      .expect({
-        ...CREATE_RESULT,
-        createdAt: CREATE_RESULT.createdAt.toISOString(),
-        updatedAt: CREATE_RESULT.updatedAt.toISOString(),
-      })
+      .expect(CREATE_RESULT)
       .then(function () {
         agent
           .post("/photos")

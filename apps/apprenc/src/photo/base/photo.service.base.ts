@@ -13,7 +13,7 @@ import { PrismaService } from "../../prisma/prisma.service";
 import {
   Prisma,
   Photo as PrismaPhoto,
-  User as PrismaUser,
+  Profile as PrismaProfile,
 } from "@prisma/client";
 
 export class PhotoServiceBase {
@@ -39,11 +39,11 @@ export class PhotoServiceBase {
     return this.prisma.photo.delete(args);
   }
 
-  async getUtilisateurs(parentId: string): Promise<PrismaUser | null> {
+  async getProfile(parentId: string): Promise<PrismaProfile | null> {
     return this.prisma.photo
       .findUnique({
         where: { id: parentId },
       })
-      .utilisateurs();
+      .profile();
   }
 }

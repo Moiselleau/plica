@@ -1,38 +1,52 @@
 import { Module } from "@nestjs/common";
 import { UserModule } from "./user/user.module";
-import { ProfilModule } from "./profil/profil.module";
-import { PhotoModule } from "./photo/photo.module";
-import { MatchModule } from "./match/match.module";
+import { ProfileModule } from "./profile/profile.module";
+import { PreferenceModule } from "./preference/preference.module";
+import { InterestModule } from "./interest/interest.module";
+import { LikeModule } from "./like/like.module";
 import { MessageModule } from "./message/message.module";
+import { StoryModule } from "./story/story.module";
+import { EventModule } from "./event/event.module";
+import { GroupModule } from "./group/group.module";
+import { SubscriptionModule } from "./subscription/subscription.module";
+import { SocialAccountModule } from "./socialAccount/socialAccount.module";
+import { PhotoModule } from "./photo/photo.module";
+import { UserBadgeModule } from "./userBadge/userBadge.module";
+import { StoryViewModule } from "./storyView/storyView.module";
+import { EventParticipantModule } from "./eventParticipant/eventParticipant.module";
+import { GroupMemberModule } from "./groupMember/groupMember.module";
+import { NotificationModule } from "./notification/notification.module";
+import { ReportModule } from "./report/report.module";
 import { HealthModule } from "./health/health.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { SecretsManagerModule } from "./providers/secrets/secretsManager.module";
-import { StorageModule } from "./storage/storage.module";
-import { MqttModule } from "./mqtt/mqtt.module";
 import { ServeStaticModule } from "@nestjs/serve-static";
 import { ServeStaticOptionsService } from "./serveStaticOptions.service";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { GraphQLModule } from "@nestjs/graphql";
 import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
 
-import { ACLModule } from "./auth/acl.module";
-import { AuthModule } from "./auth/auth.module";
-
-import { LoggerModule } from "./logger/logger.module";
-
 @Module({
   controllers: [],
   imports: [
-    MqttModule,
-    LoggerModule,
-    StorageModule,
-    ACLModule,
-    AuthModule,
     UserModule,
-    ProfilModule,
-    PhotoModule,
-    MatchModule,
+    ProfileModule,
+    PreferenceModule,
+    InterestModule,
+    LikeModule,
     MessageModule,
+    StoryModule,
+    EventModule,
+    GroupModule,
+    SubscriptionModule,
+    SocialAccountModule,
+    PhotoModule,
+    UserBadgeModule,
+    StoryViewModule,
+    EventParticipantModule,
+    GroupMemberModule,
+    NotificationModule,
+    ReportModule,
     HealthModule,
     PrismaModule,
     SecretsManagerModule,

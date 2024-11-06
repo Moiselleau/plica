@@ -1,9 +1,15 @@
-import { StringNullableFilter } from "../../util/StringNullableFilter";
 import { StringFilter } from "../../util/StringFilter";
-import { MatchListRelationFilter } from "../match/MatchListRelationFilter";
+import { DateTimeFilter } from "../../util/DateTimeFilter";
+import { StringNullableFilter } from "../../util/StringNullableFilter";
+import { DateTimeNullableFilter } from "../../util/DateTimeNullableFilter";
+import { UserWhereUniqueInput } from "../user/UserWhereUniqueInput";
 
 export type MessageWhereInput = {
-  contenu?: StringNullableFilter;
+  content?: StringFilter;
+  createdAt?: DateTimeFilter;
   id?: StringFilter;
-  match?: MatchListRelationFilter;
+  mediaUrl?: StringNullableFilter;
+  readAt?: DateTimeNullableFilter;
+  receiver?: UserWhereUniqueInput;
+  sender?: UserWhereUniqueInput;
 };

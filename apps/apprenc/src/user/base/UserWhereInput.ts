@@ -11,76 +11,108 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { MatchListRelationFilter } from "../../match/base/MatchListRelationFilter";
-import { ValidateNested, IsOptional } from "class-validator";
+import { EnumUserAuthMethod } from "./EnumUserAuthMethod";
+import { IsEnum, IsOptional, ValidateNested } from "class-validator";
+import { UserBadgeListRelationFilter } from "../../userBadge/base/UserBadgeListRelationFilter";
 import { Type } from "class-transformer";
-import { Match } from "../../match/base/Match";
-import { PhotoListRelationFilter } from "../../photo/base/PhotoListRelationFilter";
-import { Photo } from "../../photo/base/Photo";
-import { ProfilWhereUniqueInput } from "../../profil/base/ProfilWhereUniqueInput";
-import { Profil } from "../../profil/base/Profil";
-import { StringNullableFilter } from "../../util/StringNullableFilter";
+import { DateTimeFilter } from "../../util/DateTimeFilter";
 import { StringFilter } from "../../util/StringFilter";
+import { BooleanFilter } from "../../util/BooleanFilter";
+import { EventParticipantListRelationFilter } from "../../eventParticipant/base/EventParticipantListRelationFilter";
+import { GroupMemberListRelationFilter } from "../../groupMember/base/GroupMemberListRelationFilter";
+import { NotificationListRelationFilter } from "../../notification/base/NotificationListRelationFilter";
+import { StringNullableFilter } from "../../util/StringNullableFilter";
+import { ProfileWhereUniqueInput } from "../../profile/base/ProfileWhereUniqueInput";
+import { LikeListRelationFilter } from "../../like/base/LikeListRelationFilter";
+import { MessageListRelationFilter } from "../../message/base/MessageListRelationFilter";
+import { ReportListRelationFilter } from "../../report/base/ReportListRelationFilter";
+import { SocialAccountListRelationFilter } from "../../socialAccount/base/SocialAccountListRelationFilter";
+import { StoryListRelationFilter } from "../../story/base/StoryListRelationFilter";
+import { SubscriptionWhereUniqueInput } from "../../subscription/base/SubscriptionWhereUniqueInput";
+import { FloatFilter } from "../../util/FloatFilter";
+import { EnumUserVerificationStatus } from "./EnumUserVerificationStatus";
 
 @InputType()
 class UserWhereInput {
   @ApiProperty({
     required: false,
-    type: () => MatchListRelationFilter,
+    enum: EnumUserAuthMethod,
+  })
+  @IsEnum(EnumUserAuthMethod)
+  @IsOptional()
+  @Field(() => EnumUserAuthMethod, {
+    nullable: true,
+  })
+  authMethod?: "EMAIL" | "GOOGLE" | "FACEBOOK" | "INSTAGRAM";
+
+  @ApiProperty({
+    required: false,
+    type: () => UserBadgeListRelationFilter,
   })
   @ValidateNested()
-  @Type(() => MatchListRelationFilter)
+  @Type(() => UserBadgeListRelationFilter)
   @IsOptional()
-  @Field(() => MatchListRelationFilter, {
+  @Field(() => UserBadgeListRelationFilter, {
     nullable: true,
   })
-  Match?: MatchListRelationFilter;
+  badges?: UserBadgeListRelationFilter;
 
   @ApiProperty({
     required: false,
-    type: () => PhotoListRelationFilter,
+    type: DateTimeFilter,
+  })
+  @Type(() => DateTimeFilter)
+  @IsOptional()
+  @Field(() => DateTimeFilter, {
+    nullable: true,
+  })
+  createdAt?: DateTimeFilter;
+
+  @ApiProperty({
+    required: false,
+    type: StringFilter,
+  })
+  @Type(() => StringFilter)
+  @IsOptional()
+  @Field(() => StringFilter, {
+    nullable: true,
+  })
+  email?: StringFilter;
+
+  @ApiProperty({
+    required: false,
+    type: BooleanFilter,
+  })
+  @Type(() => BooleanFilter)
+  @IsOptional()
+  @Field(() => BooleanFilter, {
+    nullable: true,
+  })
+  emailVerified?: BooleanFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => EventParticipantListRelationFilter,
   })
   @ValidateNested()
-  @Type(() => PhotoListRelationFilter)
+  @Type(() => EventParticipantListRelationFilter)
   @IsOptional()
-  @Field(() => PhotoListRelationFilter, {
+  @Field(() => EventParticipantListRelationFilter, {
     nullable: true,
   })
-  Photo?: PhotoListRelationFilter;
+  events?: EventParticipantListRelationFilter;
 
   @ApiProperty({
     required: false,
-    type: () => ProfilWhereUniqueInput,
+    type: () => GroupMemberListRelationFilter,
   })
   @ValidateNested()
-  @Type(() => ProfilWhereUniqueInput)
+  @Type(() => GroupMemberListRelationFilter)
   @IsOptional()
-  @Field(() => ProfilWhereUniqueInput, {
+  @Field(() => GroupMemberListRelationFilter, {
     nullable: true,
   })
-  Profil?: ProfilWhereUniqueInput;
-
-  @ApiProperty({
-    required: false,
-    type: StringNullableFilter,
-  })
-  @Type(() => StringNullableFilter)
-  @IsOptional()
-  @Field(() => StringNullableFilter, {
-    nullable: true,
-  })
-  email?: StringNullableFilter;
-
-  @ApiProperty({
-    required: false,
-    type: StringNullableFilter,
-  })
-  @Type(() => StringNullableFilter)
-  @IsOptional()
-  @Field(() => StringNullableFilter, {
-    nullable: true,
-  })
-  firstName?: StringNullableFilter;
+  groups?: GroupMemberListRelationFilter;
 
   @ApiProperty({
     required: false,
@@ -95,6 +127,18 @@ class UserWhereInput {
 
   @ApiProperty({
     required: false,
+    type: () => NotificationListRelationFilter,
+  })
+  @ValidateNested()
+  @Type(() => NotificationListRelationFilter)
+  @IsOptional()
+  @Field(() => NotificationListRelationFilter, {
+    nullable: true,
+  })
+  notifications?: NotificationListRelationFilter;
+
+  @ApiProperty({
+    required: false,
     type: StringNullableFilter,
   })
   @Type(() => StringNullableFilter)
@@ -102,18 +146,159 @@ class UserWhereInput {
   @Field(() => StringNullableFilter, {
     nullable: true,
   })
-  lastName?: StringNullableFilter;
+  passwordHash?: StringNullableFilter;
 
   @ApiProperty({
     required: false,
-    type: StringFilter,
+    type: StringNullableFilter,
   })
-  @Type(() => StringFilter)
+  @Type(() => StringNullableFilter)
   @IsOptional()
-  @Field(() => StringFilter, {
+  @Field(() => StringNullableFilter, {
     nullable: true,
   })
-  username?: StringFilter;
+  phoneNumber?: StringNullableFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => ProfileWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => ProfileWhereUniqueInput)
+  @IsOptional()
+  @Field(() => ProfileWhereUniqueInput, {
+    nullable: true,
+  })
+  profile?: ProfileWhereUniqueInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => LikeListRelationFilter,
+  })
+  @ValidateNested()
+  @Type(() => LikeListRelationFilter)
+  @IsOptional()
+  @Field(() => LikeListRelationFilter, {
+    nullable: true,
+  })
+  receivedLikes?: LikeListRelationFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => MessageListRelationFilter,
+  })
+  @ValidateNested()
+  @Type(() => MessageListRelationFilter)
+  @IsOptional()
+  @Field(() => MessageListRelationFilter, {
+    nullable: true,
+  })
+  receivedMessages?: MessageListRelationFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => ReportListRelationFilter,
+  })
+  @ValidateNested()
+  @Type(() => ReportListRelationFilter)
+  @IsOptional()
+  @Field(() => ReportListRelationFilter, {
+    nullable: true,
+  })
+  reports?: ReportListRelationFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => LikeListRelationFilter,
+  })
+  @ValidateNested()
+  @Type(() => LikeListRelationFilter)
+  @IsOptional()
+  @Field(() => LikeListRelationFilter, {
+    nullable: true,
+  })
+  sentLikes?: LikeListRelationFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => MessageListRelationFilter,
+  })
+  @ValidateNested()
+  @Type(() => MessageListRelationFilter)
+  @IsOptional()
+  @Field(() => MessageListRelationFilter, {
+    nullable: true,
+  })
+  sentMessages?: MessageListRelationFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => SocialAccountListRelationFilter,
+  })
+  @ValidateNested()
+  @Type(() => SocialAccountListRelationFilter)
+  @IsOptional()
+  @Field(() => SocialAccountListRelationFilter, {
+    nullable: true,
+  })
+  socialAccounts?: SocialAccountListRelationFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => StoryListRelationFilter,
+  })
+  @ValidateNested()
+  @Type(() => StoryListRelationFilter)
+  @IsOptional()
+  @Field(() => StoryListRelationFilter, {
+    nullable: true,
+  })
+  stories?: StoryListRelationFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => SubscriptionWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => SubscriptionWhereUniqueInput)
+  @IsOptional()
+  @Field(() => SubscriptionWhereUniqueInput, {
+    nullable: true,
+  })
+  subscription?: SubscriptionWhereUniqueInput;
+
+  @ApiProperty({
+    required: false,
+    type: FloatFilter,
+  })
+  @Type(() => FloatFilter)
+  @IsOptional()
+  @Field(() => FloatFilter, {
+    nullable: true,
+  })
+  trustScore?: FloatFilter;
+
+  @ApiProperty({
+    required: false,
+    type: DateTimeFilter,
+  })
+  @Type(() => DateTimeFilter)
+  @IsOptional()
+  @Field(() => DateTimeFilter, {
+    nullable: true,
+  })
+  updatedAt?: DateTimeFilter;
+
+  @ApiProperty({
+    required: false,
+    enum: EnumUserVerificationStatus,
+  })
+  @IsEnum(EnumUserVerificationStatus)
+  @IsOptional()
+  @Field(() => EnumUserVerificationStatus, {
+    nullable: true,
+  })
+  verificationStatus?: "PENDING" | "VERIFIED" | "REJECTED";
 }
 
 export { UserWhereInput as UserWhereInput };

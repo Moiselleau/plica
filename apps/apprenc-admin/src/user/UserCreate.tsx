@@ -4,51 +4,146 @@ import {
   Create,
   SimpleForm,
   CreateProps,
+  SelectInput,
   ReferenceArrayInput,
   SelectArrayInput,
-  ReferenceInput,
-  SelectInput,
   TextInput,
-  PasswordInput,
+  BooleanInput,
+  ReferenceInput,
+  NumberInput,
 } from "react-admin";
 
-import { MatchTitle } from "../match/MatchTitle";
-import { PhotoTitle } from "../photo/PhotoTitle";
-import { ProfilTitle } from "../profil/ProfilTitle";
-import { ROLES_OPTIONS } from "../user/RolesOptions";
+import { UserBadgeTitle } from "../userBadge/UserBadgeTitle";
+import { EventParticipantTitle } from "../eventParticipant/EventParticipantTitle";
+import { GroupMemberTitle } from "../groupMember/GroupMemberTitle";
+import { NotificationTitle } from "../notification/NotificationTitle";
+import { ProfileTitle } from "../profile/ProfileTitle";
+import { LikeTitle } from "../like/LikeTitle";
+import { MessageTitle } from "../message/MessageTitle";
+import { ReportTitle } from "../report/ReportTitle";
+import { SocialAccountTitle } from "../socialAccount/SocialAccountTitle";
+import { StoryTitle } from "../story/StoryTitle";
+import { SubscriptionTitle } from "../subscription/SubscriptionTitle";
 
 export const UserCreate = (props: CreateProps): React.ReactElement => {
   return (
     <Create {...props}>
       <SimpleForm>
-        <ReferenceArrayInput source="Match" reference="Match">
-          <SelectArrayInput
-            optionText={MatchTitle}
-            parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
-            format={(value: any) => value && value.map((v: any) => v.id)}
-          />
-        </ReferenceArrayInput>
-        <ReferenceArrayInput source="Photo" reference="Photo">
-          <SelectArrayInput
-            optionText={PhotoTitle}
-            parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
-            format={(value: any) => value && value.map((v: any) => v.id)}
-          />
-        </ReferenceArrayInput>
-        <ReferenceInput source="Profil.id" reference="Profil" label="Profil">
-          <SelectInput optionText={ProfilTitle} />
-        </ReferenceInput>
-        <TextInput label="Email" source="email" type="email" />
-        <TextInput label="First Name" source="firstName" />
-        <TextInput label="Last Name" source="lastName" />
-        <PasswordInput label="Password" source="password" />
-        <SelectArrayInput
-          source="roles"
-          choices={ROLES_OPTIONS}
+        <SelectInput
+          source="authMethod"
+          label="Auth Method"
+          choices={[
+            { label: "EMAIL", value: "EMAIL" },
+            { label: "GOOGLE", value: "GOOGLE" },
+            { label: "FACEBOOK", value: "FACEBOOK" },
+            { label: "INSTAGRAM", value: "INSTAGRAM" },
+          ]}
           optionText="label"
           optionValue="value"
         />
-        <TextInput label="Username" source="username" />
+        <ReferenceArrayInput source="badges" reference="UserBadge">
+          <SelectArrayInput
+            optionText={UserBadgeTitle}
+            parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
+            format={(value: any) => value && value.map((v: any) => v.id)}
+          />
+        </ReferenceArrayInput>
+        <TextInput label="Email" source="email" />
+        <BooleanInput label="Email Verified" source="emailVerified" />
+        <ReferenceArrayInput source="events" reference="EventParticipant">
+          <SelectArrayInput
+            optionText={EventParticipantTitle}
+            parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
+            format={(value: any) => value && value.map((v: any) => v.id)}
+          />
+        </ReferenceArrayInput>
+        <ReferenceArrayInput source="groups" reference="GroupMember">
+          <SelectArrayInput
+            optionText={GroupMemberTitle}
+            parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
+            format={(value: any) => value && value.map((v: any) => v.id)}
+          />
+        </ReferenceArrayInput>
+        <ReferenceArrayInput source="notifications" reference="Notification">
+          <SelectArrayInput
+            optionText={NotificationTitle}
+            parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
+            format={(value: any) => value && value.map((v: any) => v.id)}
+          />
+        </ReferenceArrayInput>
+        <TextInput label="Password Hash" source="passwordHash" />
+        <TextInput label="Phone Number" source="phoneNumber" />
+        <ReferenceInput source="profile.id" reference="Profile" label="Profile">
+          <SelectInput optionText={ProfileTitle} />
+        </ReferenceInput>
+        <ReferenceArrayInput source="receivedLikes" reference="Like">
+          <SelectArrayInput
+            optionText={LikeTitle}
+            parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
+            format={(value: any) => value && value.map((v: any) => v.id)}
+          />
+        </ReferenceArrayInput>
+        <ReferenceArrayInput source="receivedMessages" reference="Message">
+          <SelectArrayInput
+            optionText={MessageTitle}
+            parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
+            format={(value: any) => value && value.map((v: any) => v.id)}
+          />
+        </ReferenceArrayInput>
+        <ReferenceArrayInput source="reports" reference="Report">
+          <SelectArrayInput
+            optionText={ReportTitle}
+            parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
+            format={(value: any) => value && value.map((v: any) => v.id)}
+          />
+        </ReferenceArrayInput>
+        <ReferenceArrayInput source="sentLikes" reference="Like">
+          <SelectArrayInput
+            optionText={LikeTitle}
+            parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
+            format={(value: any) => value && value.map((v: any) => v.id)}
+          />
+        </ReferenceArrayInput>
+        <ReferenceArrayInput source="sentMessages" reference="Message">
+          <SelectArrayInput
+            optionText={MessageTitle}
+            parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
+            format={(value: any) => value && value.map((v: any) => v.id)}
+          />
+        </ReferenceArrayInput>
+        <ReferenceArrayInput source="socialAccounts" reference="SocialAccount">
+          <SelectArrayInput
+            optionText={SocialAccountTitle}
+            parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
+            format={(value: any) => value && value.map((v: any) => v.id)}
+          />
+        </ReferenceArrayInput>
+        <ReferenceArrayInput source="stories" reference="Story">
+          <SelectArrayInput
+            optionText={StoryTitle}
+            parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
+            format={(value: any) => value && value.map((v: any) => v.id)}
+          />
+        </ReferenceArrayInput>
+        <ReferenceInput
+          source="subscription.id"
+          reference="Subscription"
+          label="Subscription"
+        >
+          <SelectInput optionText={SubscriptionTitle} />
+        </ReferenceInput>
+        <NumberInput label="Trust Score" source="trustScore" />
+        <SelectInput
+          source="verificationStatus"
+          label="Verification Status"
+          choices={[
+            { label: "PENDING", value: "PENDING" },
+            { label: "VERIFIED", value: "VERIFIED" },
+            { label: "REJECTED", value: "REJECTED" },
+          ]}
+          optionText="label"
+          optionValue="value"
+        />
       </SimpleForm>
     </Create>
   );

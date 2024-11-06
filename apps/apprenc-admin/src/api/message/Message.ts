@@ -1,9 +1,11 @@
-import { Match } from "../match/Match";
+import { User } from "../user/User";
 
 export type Message = {
-  contenu: string | null;
+  content: string;
   createdAt: Date;
   id: string;
-  match?: Array<Match>;
-  updatedAt: Date;
+  mediaUrl: string | null;
+  readAt: Date | null;
+  receiver?: User;
+  sender?: User;
 };

@@ -13,50 +13,48 @@ import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
 import {
   IsBoolean,
-  IsOptional,
+  ValidateNested,
   IsString,
   MaxLength,
-  ValidateNested,
 } from "class-validator";
-import { UserWhereUniqueInput } from "../../user/base/UserWhereUniqueInput";
+import { ProfileWhereUniqueInput } from "../../profile/base/ProfileWhereUniqueInput";
 import { Type } from "class-transformer";
 
 @InputType()
 class PhotoCreateInput {
   @ApiProperty({
-    required: false,
+    required: true,
     type: Boolean,
   })
   @IsBoolean()
-  @IsOptional()
-  @Field(() => Boolean, {
-    nullable: true,
-  })
-  isProfilPhoto?: boolean | null;
+  @Field(() => Boolean)
+  isMain!: boolean;
 
   @ApiProperty({
-    required: false,
+    required: true,
+    type: () => ProfileWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => ProfileWhereUniqueInput)
+  @Field(() => ProfileWhereUniqueInput)
+  profile!: ProfileWhereUniqueInput;
+
+  @ApiProperty({
+    required: true,
     type: String,
   })
   @IsString()
-  @MaxLength(1000)
-  @IsOptional()
-  @Field(() => String, {
-    nullable: true,
-  })
-  url?: string | null;
+  @MaxLength(256)
+  @Field(() => String)
+  url!: string;
 
   @ApiProperty({
-    required: false,
-    type: () => UserWhereUniqueInput,
+    required: true,
+    type: Boolean,
   })
-  @ValidateNested()
-  @Type(() => UserWhereUniqueInput)
-  @IsOptional()
-  @Field(() => UserWhereUniqueInput, {
-    nullable: true,
-  })
-  utilisateurs?: UserWhereUniqueInput | null;
+  @IsBoolean()
+  @Field(() => Boolean)
+  verified!: boolean;
 }
 
 export { PhotoCreateInput as PhotoCreateInput };

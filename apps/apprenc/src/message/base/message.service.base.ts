@@ -13,7 +13,7 @@ import { PrismaService } from "../../prisma/prisma.service";
 import {
   Prisma,
   Message as PrismaMessage,
-  Match as PrismaMatch,
+  User as PrismaUser,
 } from "@prisma/client";
 
 export class MessageServiceBase {
@@ -41,14 +41,19 @@ export class MessageServiceBase {
     return this.prisma.message.delete(args);
   }
 
-  async findMatch(
-    parentId: string,
-    args: Prisma.MatchFindManyArgs
-  ): Promise<PrismaMatch[]> {
+  async getReceiver(parentId: string): Promise<PrismaUser | null> {
     return this.prisma.message
-      .findUniqueOrThrow({
+      .findUnique({
         where: { id: parentId },
       })
-      .match(args);
+      .receiver();
+  }
+
+  async getSender(parentId: string): Promise<PrismaUser | null> {
+    return this.prisma.message
+      .findUnique({
+        where: { id: parentId },
+      })
+      .sender();
   }
 }

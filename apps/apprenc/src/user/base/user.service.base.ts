@@ -14,22 +14,21 @@ import { PrismaService } from "../../prisma/prisma.service";
 import {
   Prisma,
   User as PrismaUser,
-  Match as PrismaMatch,
-  Photo as PrismaPhoto,
-  Profil as PrismaProfil,
+  UserBadge as PrismaUserBadge,
+  EventParticipant as PrismaEventParticipant,
+  GroupMember as PrismaGroupMember,
+  Notification as PrismaNotification,
+  Like as PrismaLike,
+  Message as PrismaMessage,
+  Report as PrismaReport,
+  SocialAccount as PrismaSocialAccount,
+  Story as PrismaStory,
+  Profile as PrismaProfile,
+  Subscription as PrismaSubscription,
 } from "@prisma/client";
 
-import { PasswordService } from "../../auth/password.service";
-import { transformStringFieldUpdateInput } from "../../prisma.util";
-import { Match } from "../../match/base/Match";
-import { Photo } from "../../photo/base/Photo";
-import { Profil } from "../../profil/base/Profil";
-
 export class UserServiceBase {
-  constructor(
-    protected readonly prisma: PrismaService,
-    protected readonly passwordService: PasswordService
-  ) {}
+  constructor(protected readonly prisma: PrismaService) {}
 
   async count(args: Omit<Prisma.UserCountArgs, "select">): Promise<number> {
     return this.prisma.user.count(args);
@@ -42,62 +41,149 @@ export class UserServiceBase {
     return this.prisma.user.findUnique(args);
   }
   async createUser(args: Prisma.UserCreateArgs): Promise<PrismaUser> {
-    return this.prisma.user.create({
-      ...args,
-
-      data: {
-        ...args.data,
-        password: await this.passwordService.hash(args.data.password),
-      },
-    });
+    return this.prisma.user.create(args);
   }
   async updateUser(args: Prisma.UserUpdateArgs): Promise<PrismaUser> {
-    return this.prisma.user.update({
-      ...args,
-
-      data: {
-        ...args.data,
-
-        password:
-          args.data.password &&
-          (await transformStringFieldUpdateInput(
-            args.data.password,
-            (password) => this.passwordService.hash(password)
-          )),
-      },
-    });
+    return this.prisma.user.update(args);
   }
   async deleteUser(args: Prisma.UserDeleteArgs): Promise<PrismaUser> {
     return this.prisma.user.delete(args);
   }
 
-  async findMatch(
+  async findBadges(
     parentId: string,
-    args: Prisma.MatchFindManyArgs
-  ): Promise<PrismaMatch[]> {
+    args: Prisma.UserBadgeFindManyArgs
+  ): Promise<PrismaUserBadge[]> {
     return this.prisma.user
       .findUniqueOrThrow({
         where: { id: parentId },
       })
-      .Match(args);
+      .badges(args);
   }
 
-  async findPhoto(
+  async findEvents(
     parentId: string,
-    args: Prisma.PhotoFindManyArgs
-  ): Promise<PrismaPhoto[]> {
+    args: Prisma.EventParticipantFindManyArgs
+  ): Promise<PrismaEventParticipant[]> {
     return this.prisma.user
       .findUniqueOrThrow({
         where: { id: parentId },
       })
-      .Photo(args);
+      .events(args);
   }
 
-  async getProfil(parentId: string): Promise<PrismaProfil | null> {
+  async findGroups(
+    parentId: string,
+    args: Prisma.GroupMemberFindManyArgs
+  ): Promise<PrismaGroupMember[]> {
+    return this.prisma.user
+      .findUniqueOrThrow({
+        where: { id: parentId },
+      })
+      .groups(args);
+  }
+
+  async findNotifications(
+    parentId: string,
+    args: Prisma.NotificationFindManyArgs
+  ): Promise<PrismaNotification[]> {
+    return this.prisma.user
+      .findUniqueOrThrow({
+        where: { id: parentId },
+      })
+      .notifications(args);
+  }
+
+  async findReceivedLikes(
+    parentId: string,
+    args: Prisma.LikeFindManyArgs
+  ): Promise<PrismaLike[]> {
+    return this.prisma.user
+      .findUniqueOrThrow({
+        where: { id: parentId },
+      })
+      .receivedLikes(args);
+  }
+
+  async findReceivedMessages(
+    parentId: string,
+    args: Prisma.MessageFindManyArgs
+  ): Promise<PrismaMessage[]> {
+    return this.prisma.user
+      .findUniqueOrThrow({
+        where: { id: parentId },
+      })
+      .receivedMessages(args);
+  }
+
+  async findReports(
+    parentId: string,
+    args: Prisma.ReportFindManyArgs
+  ): Promise<PrismaReport[]> {
+    return this.prisma.user
+      .findUniqueOrThrow({
+        where: { id: parentId },
+      })
+      .reports(args);
+  }
+
+  async findSentLikes(
+    parentId: string,
+    args: Prisma.LikeFindManyArgs
+  ): Promise<PrismaLike[]> {
+    return this.prisma.user
+      .findUniqueOrThrow({
+        where: { id: parentId },
+      })
+      .sentLikes(args);
+  }
+
+  async findSentMessages(
+    parentId: string,
+    args: Prisma.MessageFindManyArgs
+  ): Promise<PrismaMessage[]> {
+    return this.prisma.user
+      .findUniqueOrThrow({
+        where: { id: parentId },
+      })
+      .sentMessages(args);
+  }
+
+  async findSocialAccounts(
+    parentId: string,
+    args: Prisma.SocialAccountFindManyArgs
+  ): Promise<PrismaSocialAccount[]> {
+    return this.prisma.user
+      .findUniqueOrThrow({
+        where: { id: parentId },
+      })
+      .socialAccounts(args);
+  }
+
+  async findStories(
+    parentId: string,
+    args: Prisma.StoryFindManyArgs
+  ): Promise<PrismaStory[]> {
+    return this.prisma.user
+      .findUniqueOrThrow({
+        where: { id: parentId },
+      })
+      .stories(args);
+  }
+
+  async getProfile(parentId: string): Promise<PrismaProfile | null> {
     return this.prisma.user
       .findUnique({
         where: { id: parentId },
       })
-      .Profil();
+      .profile();
+  }
+
+  async getSubscription(parentId: string): Promise<PrismaSubscription | null> {
+    return this.prisma.user
+      .findUnique({
+        where: { id: parentId },
+      })
+      .subscription();
   }
 }

@@ -15,10 +15,11 @@ import {
   IsString,
   MaxLength,
   IsOptional,
+  IsDate,
   ValidateNested,
 } from "class-validator";
-import { MatchUpdateManyWithoutMessagesInput } from "./MatchUpdateManyWithoutMessagesInput";
 import { Type } from "class-transformer";
+import { UserWhereUniqueInput } from "../../user/base/UserWhereUniqueInput";
 
 @InputType()
 class MessageUpdateInput {
@@ -27,24 +28,59 @@ class MessageUpdateInput {
     type: String,
   })
   @IsString()
-  @MaxLength(1000)
+  @MaxLength(256)
   @IsOptional()
   @Field(() => String, {
     nullable: true,
   })
-  contenu?: string | null;
+  content?: string;
 
   @ApiProperty({
     required: false,
-    type: () => MatchUpdateManyWithoutMessagesInput,
+    type: String,
   })
-  @ValidateNested()
-  @Type(() => MatchUpdateManyWithoutMessagesInput)
+  @IsString()
+  @MaxLength(256)
   @IsOptional()
-  @Field(() => MatchUpdateManyWithoutMessagesInput, {
+  @Field(() => String, {
     nullable: true,
   })
-  match?: MatchUpdateManyWithoutMessagesInput;
+  mediaUrl?: string | null;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsDate()
+  @Type(() => Date)
+  @IsOptional()
+  @Field(() => Date, {
+    nullable: true,
+  })
+  readAt?: Date | null;
+
+  @ApiProperty({
+    required: false,
+    type: () => UserWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => UserWhereUniqueInput)
+  @IsOptional()
+  @Field(() => UserWhereUniqueInput, {
+    nullable: true,
+  })
+  receiver?: UserWhereUniqueInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => UserWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => UserWhereUniqueInput)
+  @IsOptional()
+  @Field(() => UserWhereUniqueInput, {
+    nullable: true,
+  })
+  sender?: UserWhereUniqueInput;
 }
 
 export { MessageUpdateInput as MessageUpdateInput };

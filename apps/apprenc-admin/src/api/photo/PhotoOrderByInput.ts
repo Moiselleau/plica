@@ -1,10 +1,9 @@
 import { SortOrder } from "../../util/SortOrder";
 
 export type PhotoOrderByInput = {
-  createdAt?: SortOrder;
   id?: SortOrder;
-  isProfilPhoto?: SortOrder;
-  updatedAt?: SortOrder;
+  isMain?: SortOrder;
+  profileId?: SortOrder;
   url?: SortOrder;
-  utilisateursId?: SortOrder;
+  verified?: SortOrder;
 };

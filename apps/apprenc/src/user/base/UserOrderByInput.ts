@@ -28,7 +28,7 @@ class UserOrderByInput {
   @Field(() => SortOrder, {
     nullable: true,
   })
-  ProfilId?: SortOrder;
+  authMethod?: SortOrder;
 
   @ApiProperty({
     required: false,
@@ -61,7 +61,7 @@ class UserOrderByInput {
   @Field(() => SortOrder, {
     nullable: true,
   })
-  firstName?: SortOrder;
+  emailVerified?: SortOrder;
 
   @ApiProperty({
     required: false,
@@ -83,7 +83,7 @@ class UserOrderByInput {
   @Field(() => SortOrder, {
     nullable: true,
   })
-  lastName?: SortOrder;
+  passwordHash?: SortOrder;
 
   @ApiProperty({
     required: false,
@@ -94,7 +94,7 @@ class UserOrderByInput {
   @Field(() => SortOrder, {
     nullable: true,
   })
-  password?: SortOrder;
+  phoneNumber?: SortOrder;
 
   @ApiProperty({
     required: false,
@@ -105,7 +105,29 @@ class UserOrderByInput {
   @Field(() => SortOrder, {
     nullable: true,
   })
-  roles?: SortOrder;
+  profileId?: SortOrder;
+
+  @ApiProperty({
+    required: false,
+    enum: ["asc", "desc"],
+  })
+  @IsOptional()
+  @IsEnum(SortOrder)
+  @Field(() => SortOrder, {
+    nullable: true,
+  })
+  subscriptionId?: SortOrder;
+
+  @ApiProperty({
+    required: false,
+    enum: ["asc", "desc"],
+  })
+  @IsOptional()
+  @IsEnum(SortOrder)
+  @Field(() => SortOrder, {
+    nullable: true,
+  })
+  trustScore?: SortOrder;
 
   @ApiProperty({
     required: false,
@@ -127,7 +149,7 @@ class UserOrderByInput {
   @Field(() => SortOrder, {
     nullable: true,
   })
-  username?: SortOrder;
+  verificationStatus?: SortOrder;
 }
 
 export { UserOrderByInput as UserOrderByInput };

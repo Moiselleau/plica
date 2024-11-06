@@ -13,12 +13,6 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
-import * as nestAccessControl from "nest-access-control";
-import * as gqlACGuard from "../../auth/gqlAC.guard";
-import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
-import * as common from "@nestjs/common";
-import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
-import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { Photo } from "./Photo";
 import { PhotoCountArgs } from "./PhotoCountArgs";
 import { PhotoFindManyArgs } from "./PhotoFindManyArgs";
@@ -26,22 +20,12 @@ import { PhotoFindUniqueArgs } from "./PhotoFindUniqueArgs";
 import { CreatePhotoArgs } from "./CreatePhotoArgs";
 import { UpdatePhotoArgs } from "./UpdatePhotoArgs";
 import { DeletePhotoArgs } from "./DeletePhotoArgs";
-import { User } from "../../user/base/User";
+import { Profile } from "../../profile/base/Profile";
 import { PhotoService } from "../photo.service";
-@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => Photo)
 export class PhotoResolverBase {
-  constructor(
-    protected readonly service: PhotoService,
-    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
-  ) {}
+  constructor(protected readonly service: PhotoService) {}
 
-  @graphql.Query(() => MetaQueryPayload)
-  @nestAccessControl.UseRoles({
-    resource: "Photo",
-    action: "read",
-    possession: "any",
-  })
   async _photosMeta(
     @graphql.Args() args: PhotoCountArgs
   ): Promise<MetaQueryPayload> {
@@ -51,24 +35,12 @@ export class PhotoResolverBase {
     };
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [Photo])
-  @nestAccessControl.UseRoles({
-    resource: "Photo",
-    action: "read",
-    possession: "any",
-  })
   async photos(@graphql.Args() args: PhotoFindManyArgs): Promise<Photo[]> {
     return this.service.photos(args);
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => Photo, { nullable: true })
-  @nestAccessControl.UseRoles({
-    resource: "Photo",
-    action: "read",
-    possession: "own",
-  })
   async photo(
     @graphql.Args() args: PhotoFindUniqueArgs
   ): Promise<Photo | null> {
@@ -79,35 +51,21 @@ export class PhotoResolverBase {
     return result;
   }
 
-  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Photo)
-  @nestAccessControl.UseRoles({
-    resource: "Photo",
-    action: "create",
-    possession: "any",
-  })
   async createPhoto(@graphql.Args() args: CreatePhotoArgs): Promise<Photo> {
     return await this.service.createPhoto({
       ...args,
       data: {
         ...args.data,
 
-        utilisateurs: args.data.utilisateurs
-          ? {
-              connect: args.data.utilisateurs,
-            }
-          : undefined,
+        profile: {
+          connect: args.data.profile,
+        },
       },
     });
   }
 
-  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Photo)
-  @nestAccessControl.UseRoles({
-    resource: "Photo",
-    action: "update",
-    possession: "any",
-  })
   async updatePhoto(
     @graphql.Args() args: UpdatePhotoArgs
   ): Promise<Photo | null> {
@@ -117,11 +75,9 @@ export class PhotoResolverBase {
         data: {
           ...args.data,
 
-          utilisateurs: args.data.utilisateurs
-            ? {
-                connect: args.data.utilisateurs,
-              }
-            : undefined,
+          profile: {
+            connect: args.data.profile,
+          },
         },
       });
     } catch (error) {
@@ -135,11 +91,6 @@ export class PhotoResolverBase {
   }
 
   @graphql.Mutation(() => Photo)
-  @nestAccessControl.UseRoles({
-    resource: "Photo",
-    action: "delete",
-    possession: "any",
-  })
   async deletePhoto(
     @graphql.Args() args: DeletePhotoArgs
   ): Promise<Photo | null> {
@@ -155,18 +106,12 @@ export class PhotoResolverBase {
     }
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
-  @graphql.ResolveField(() => User, {
+  @graphql.ResolveField(() => Profile, {
     nullable: true,
-    name: "utilisateurs",
+    name: "profile",
   })
-  @nestAccessControl.UseRoles({
-    resource: "User",
-    action: "read",
-    possession: "any",
-  })
-  async getUtilisateurs(@graphql.Parent() parent: Photo): Promise<User | null> {
-    const result = await this.service.getUtilisateurs(parent.id);
+  async getProfile(@graphql.Parent() parent: Photo): Promise<Profile | null> {
+    const result = await this.service.getProfile(parent.id);
 
     if (!result) {
       return null;

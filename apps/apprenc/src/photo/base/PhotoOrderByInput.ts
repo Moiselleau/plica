@@ -28,17 +28,6 @@ class PhotoOrderByInput {
   @Field(() => SortOrder, {
     nullable: true,
   })
-  createdAt?: SortOrder;
-
-  @ApiProperty({
-    required: false,
-    enum: ["asc", "desc"],
-  })
-  @IsOptional()
-  @IsEnum(SortOrder)
-  @Field(() => SortOrder, {
-    nullable: true,
-  })
   id?: SortOrder;
 
   @ApiProperty({
@@ -50,7 +39,7 @@ class PhotoOrderByInput {
   @Field(() => SortOrder, {
     nullable: true,
   })
-  isProfilPhoto?: SortOrder;
+  isMain?: SortOrder;
 
   @ApiProperty({
     required: false,
@@ -61,7 +50,7 @@ class PhotoOrderByInput {
   @Field(() => SortOrder, {
     nullable: true,
   })
-  updatedAt?: SortOrder;
+  profileId?: SortOrder;
 
   @ApiProperty({
     required: false,
@@ -83,7 +72,7 @@ class PhotoOrderByInput {
   @Field(() => SortOrder, {
     nullable: true,
   })
-  utilisateursId?: SortOrder;
+  verified?: SortOrder;
 }
 
 export { PhotoOrderByInput as PhotoOrderByInput };

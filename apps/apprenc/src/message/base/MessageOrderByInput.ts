@@ -28,7 +28,7 @@ class MessageOrderByInput {
   @Field(() => SortOrder, {
     nullable: true,
   })
-  contenu?: SortOrder;
+  content?: SortOrder;
 
   @ApiProperty({
     required: false,
@@ -61,7 +61,40 @@ class MessageOrderByInput {
   @Field(() => SortOrder, {
     nullable: true,
   })
-  updatedAt?: SortOrder;
+  mediaUrl?: SortOrder;
+
+  @ApiProperty({
+    required: false,
+    enum: ["asc", "desc"],
+  })
+  @IsOptional()
+  @IsEnum(SortOrder)
+  @Field(() => SortOrder, {
+    nullable: true,
+  })
+  readAt?: SortOrder;
+
+  @ApiProperty({
+    required: false,
+    enum: ["asc", "desc"],
+  })
+  @IsOptional()
+  @IsEnum(SortOrder)
+  @Field(() => SortOrder, {
+    nullable: true,
+  })
+  receiverId?: SortOrder;
+
+  @ApiProperty({
+    required: false,
+    enum: ["asc", "desc"],
+  })
+  @IsOptional()
+  @IsEnum(SortOrder)
+  @Field(() => SortOrder, {
+    nullable: true,
+  })
+  senderId?: SortOrder;
 }
 
 export { MessageOrderByInput as MessageOrderByInput };

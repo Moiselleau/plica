@@ -14,11 +14,11 @@ import { ApiProperty } from "@nestjs/swagger";
 import {
   IsBoolean,
   IsOptional,
+  ValidateNested,
   IsString,
   MaxLength,
-  ValidateNested,
 } from "class-validator";
-import { UserWhereUniqueInput } from "../../user/base/UserWhereUniqueInput";
+import { ProfileWhereUniqueInput } from "../../profile/base/ProfileWhereUniqueInput";
 import { Type } from "class-transformer";
 
 @InputType()
@@ -32,31 +32,42 @@ class PhotoUpdateInput {
   @Field(() => Boolean, {
     nullable: true,
   })
-  isProfilPhoto?: boolean | null;
+  isMain?: boolean;
+
+  @ApiProperty({
+    required: false,
+    type: () => ProfileWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => ProfileWhereUniqueInput)
+  @IsOptional()
+  @Field(() => ProfileWhereUniqueInput, {
+    nullable: true,
+  })
+  profile?: ProfileWhereUniqueInput;
 
   @ApiProperty({
     required: false,
     type: String,
   })
   @IsString()
-  @MaxLength(1000)
+  @MaxLength(256)
   @IsOptional()
   @Field(() => String, {
     nullable: true,
   })
-  url?: string | null;
+  url?: string;
 
   @ApiProperty({
     required: false,
-    type: () => UserWhereUniqueInput,
+    type: Boolean,
   })
-  @ValidateNested()
-  @Type(() => UserWhereUniqueInput)
+  @IsBoolean()
   @IsOptional()
-  @Field(() => UserWhereUniqueInput, {
+  @Field(() => Boolean, {
     nullable: true,
   })
-  utilisateurs?: UserWhereUniqueInput | null;
+  verified?: boolean;
 }
 
 export { PhotoUpdateInput as PhotoUpdateInput };

@@ -16,139 +16,156 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
-import * as nestAccessControl from "nest-access-control";
-import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { UserService } from "../user.service";
-import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
-import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { UserCreateInput } from "./UserCreateInput";
-import { Profil } from "../../profil/base/Profil";
 import { User } from "./User";
 import { UserFindManyArgs } from "./UserFindManyArgs";
 import { UserWhereUniqueInput } from "./UserWhereUniqueInput";
 import { UserUpdateInput } from "./UserUpdateInput";
-import { MatchFindManyArgs } from "../../match/base/MatchFindManyArgs";
-import { Match } from "../../match/base/Match";
-import { MatchWhereUniqueInput } from "../../match/base/MatchWhereUniqueInput";
-import { PhotoFindManyArgs } from "../../photo/base/PhotoFindManyArgs";
-import { Photo } from "../../photo/base/Photo";
-import { PhotoWhereUniqueInput } from "../../photo/base/PhotoWhereUniqueInput";
+import { UserBadgeFindManyArgs } from "../../userBadge/base/UserBadgeFindManyArgs";
+import { UserBadge } from "../../userBadge/base/UserBadge";
+import { UserBadgeWhereUniqueInput } from "../../userBadge/base/UserBadgeWhereUniqueInput";
+import { EventParticipantFindManyArgs } from "../../eventParticipant/base/EventParticipantFindManyArgs";
+import { EventParticipant } from "../../eventParticipant/base/EventParticipant";
+import { EventParticipantWhereUniqueInput } from "../../eventParticipant/base/EventParticipantWhereUniqueInput";
+import { GroupMemberFindManyArgs } from "../../groupMember/base/GroupMemberFindManyArgs";
+import { GroupMember } from "../../groupMember/base/GroupMember";
+import { GroupMemberWhereUniqueInput } from "../../groupMember/base/GroupMemberWhereUniqueInput";
+import { NotificationFindManyArgs } from "../../notification/base/NotificationFindManyArgs";
+import { Notification } from "../../notification/base/Notification";
+import { NotificationWhereUniqueInput } from "../../notification/base/NotificationWhereUniqueInput";
+import { LikeFindManyArgs } from "../../like/base/LikeFindManyArgs";
+import { Like } from "../../like/base/Like";
+import { LikeWhereUniqueInput } from "../../like/base/LikeWhereUniqueInput";
+import { MessageFindManyArgs } from "../../message/base/MessageFindManyArgs";
+import { Message } from "../../message/base/Message";
+import { MessageWhereUniqueInput } from "../../message/base/MessageWhereUniqueInput";
+import { ReportFindManyArgs } from "../../report/base/ReportFindManyArgs";
+import { Report } from "../../report/base/Report";
+import { ReportWhereUniqueInput } from "../../report/base/ReportWhereUniqueInput";
+import { SocialAccountFindManyArgs } from "../../socialAccount/base/SocialAccountFindManyArgs";
+import { SocialAccount } from "../../socialAccount/base/SocialAccount";
+import { SocialAccountWhereUniqueInput } from "../../socialAccount/base/SocialAccountWhereUniqueInput";
+import { StoryFindManyArgs } from "../../story/base/StoryFindManyArgs";
+import { Story } from "../../story/base/Story";
+import { StoryWhereUniqueInput } from "../../story/base/StoryWhereUniqueInput";
 
-@swagger.ApiBearerAuth()
-@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class UserControllerBase {
-  constructor(
-    protected readonly service: UserService,
-    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
-  ) {}
-  @common.UseInterceptors(AclValidateRequestInterceptor)
+  constructor(protected readonly service: UserService) {}
   @common.Post()
   @swagger.ApiCreatedResponse({ type: User })
-  @nestAccessControl.UseRoles({
-    resource: "User",
-    action: "create",
-    possession: "any",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async createUser(@common.Body() data: UserCreateInput): Promise<User> {
     return await this.service.createUser({
       data: {
         ...data,
 
-        Profil: data.Profil
+        profile: data.profile
           ? {
-              connect: data.Profil,
+              connect: data.profile,
+            }
+          : undefined,
+
+        subscription: data.subscription
+          ? {
+              connect: data.subscription,
             }
           : undefined,
       },
       select: {
-        Profil: {
+        authMethod: true,
+        createdAt: true,
+        email: true,
+        emailVerified: true,
+        id: true,
+        passwordHash: true,
+        phoneNumber: true,
+
+        profile: {
           select: {
             id: true,
           },
         },
 
-        createdAt: true,
-        email: true,
-        firstName: true,
-        id: true,
-        lastName: true,
-        roles: true,
+        subscription: {
+          select: {
+            id: true,
+          },
+        },
+
+        trustScore: true,
         updatedAt: true,
-        username: true,
+        verificationStatus: true,
       },
     });
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [User] })
   @ApiNestedQuery(UserFindManyArgs)
-  @nestAccessControl.UseRoles({
-    resource: "User",
-    action: "read",
-    possession: "any",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async users(@common.Req() request: Request): Promise<User[]> {
     const args = plainToClass(UserFindManyArgs, request.query);
     return this.service.users({
       ...args,
       select: {
-        Profil: {
+        authMethod: true,
+        createdAt: true,
+        email: true,
+        emailVerified: true,
+        id: true,
+        passwordHash: true,
+        phoneNumber: true,
+
+        profile: {
           select: {
             id: true,
           },
         },
 
-        createdAt: true,
-        email: true,
-        firstName: true,
-        id: true,
-        lastName: true,
-        roles: true,
+        subscription: {
+          select: {
+            id: true,
+          },
+        },
+
+        trustScore: true,
         updatedAt: true,
-        username: true,
+        verificationStatus: true,
       },
     });
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: User })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
-  @nestAccessControl.UseRoles({
-    resource: "User",
-    action: "read",
-    possession: "own",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async user(
     @common.Param() params: UserWhereUniqueInput
   ): Promise<User | null> {
     const result = await this.service.user({
       where: params,
       select: {
-        Profil: {
+        authMethod: true,
+        createdAt: true,
+        email: true,
+        emailVerified: true,
+        id: true,
+        passwordHash: true,
+        phoneNumber: true,
+
+        profile: {
           select: {
             id: true,
           },
         },
 
-        createdAt: true,
-        email: true,
-        firstName: true,
-        id: true,
-        lastName: true,
-        roles: true,
+        subscription: {
+          select: {
+            id: true,
+          },
+        },
+
+        trustScore: true,
         updatedAt: true,
-        username: true,
+        verificationStatus: true,
       },
     });
     if (result === null) {
@@ -159,18 +176,9 @@ export class UserControllerBase {
     return result;
   }
 
-  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: User })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
-  @nestAccessControl.UseRoles({
-    resource: "User",
-    action: "update",
-    possession: "any",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async updateUser(
     @common.Param() params: UserWhereUniqueInput,
     @common.Body() data: UserUpdateInput
@@ -181,27 +189,42 @@ export class UserControllerBase {
         data: {
           ...data,
 
-          Profil: data.Profil
+          profile: data.profile
             ? {
-                connect: data.Profil,
+                connect: data.profile,
+              }
+            : undefined,
+
+          subscription: data.subscription
+            ? {
+                connect: data.subscription,
               }
             : undefined,
         },
         select: {
-          Profil: {
+          authMethod: true,
+          createdAt: true,
+          email: true,
+          emailVerified: true,
+          id: true,
+          passwordHash: true,
+          phoneNumber: true,
+
+          profile: {
             select: {
               id: true,
             },
           },
 
-          createdAt: true,
-          email: true,
-          firstName: true,
-          id: true,
-          lastName: true,
-          roles: true,
+          subscription: {
+            select: {
+              id: true,
+            },
+          },
+
+          trustScore: true,
           updatedAt: true,
-          username: true,
+          verificationStatus: true,
         },
       });
     } catch (error) {
@@ -217,14 +240,6 @@ export class UserControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: User })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
-  @nestAccessControl.UseRoles({
-    resource: "User",
-    action: "delete",
-    possession: "any",
-  })
-  @swagger.ApiForbiddenResponse({
-    type: errors.ForbiddenException,
-  })
   async deleteUser(
     @common.Param() params: UserWhereUniqueInput
   ): Promise<User | null> {
@@ -232,20 +247,29 @@ export class UserControllerBase {
       return await this.service.deleteUser({
         where: params,
         select: {
-          Profil: {
+          authMethod: true,
+          createdAt: true,
+          email: true,
+          emailVerified: true,
+          id: true,
+          passwordHash: true,
+          phoneNumber: true,
+
+          profile: {
             select: {
               id: true,
             },
           },
 
-          createdAt: true,
-          email: true,
-          firstName: true,
-          id: true,
-          lastName: true,
-          roles: true,
+          subscription: {
+            select: {
+              id: true,
+            },
+          },
+
+          trustScore: true,
           updatedAt: true,
-          username: true,
+          verificationStatus: true,
         },
       });
     } catch (error) {
@@ -258,124 +282,21 @@ export class UserControllerBase {
     }
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
-  @common.Get("/:id/Match")
-  @ApiNestedQuery(MatchFindManyArgs)
-  @nestAccessControl.UseRoles({
-    resource: "Match",
-    action: "read",
-    possession: "any",
-  })
-  async findMatch(
+  @common.Get("/:id/badges")
+  @ApiNestedQuery(UserBadgeFindManyArgs)
+  async findBadges(
     @common.Req() request: Request,
     @common.Param() params: UserWhereUniqueInput
-  ): Promise<Match[]> {
-    const query = plainToClass(MatchFindManyArgs, request.query);
-    const results = await this.service.findMatch(params.id, {
+  ): Promise<UserBadge[]> {
+    const query = plainToClass(UserBadgeFindManyArgs, request.query);
+    const results = await this.service.findBadges(params.id, {
       ...query,
       select: {
-        createdAt: true,
+        earnedAt: true,
         id: true,
-        updatedAt: true,
-      },
-    });
-    if (results === null) {
-      throw new errors.NotFoundException(
-        `No resource was found for ${JSON.stringify(params)}`
-      );
-    }
-    return results;
-  }
+        typeField: true,
 
-  @common.Post("/:id/Match")
-  @nestAccessControl.UseRoles({
-    resource: "User",
-    action: "update",
-    possession: "any",
-  })
-  async connectMatch(
-    @common.Param() params: UserWhereUniqueInput,
-    @common.Body() body: MatchWhereUniqueInput[]
-  ): Promise<void> {
-    const data = {
-      Match: {
-        connect: body,
-      },
-    };
-    await this.service.updateUser({
-      where: params,
-      data,
-      select: { id: true },
-    });
-  }
-
-  @common.Patch("/:id/Match")
-  @nestAccessControl.UseRoles({
-    resource: "User",
-    action: "update",
-    possession: "any",
-  })
-  async updateMatch(
-    @common.Param() params: UserWhereUniqueInput,
-    @common.Body() body: MatchWhereUniqueInput[]
-  ): Promise<void> {
-    const data = {
-      Match: {
-        set: body,
-      },
-    };
-    await this.service.updateUser({
-      where: params,
-      data,
-      select: { id: true },
-    });
-  }
-
-  @common.Delete("/:id/Match")
-  @nestAccessControl.UseRoles({
-    resource: "User",
-    action: "update",
-    possession: "any",
-  })
-  async disconnectMatch(
-    @common.Param() params: UserWhereUniqueInput,
-    @common.Body() body: MatchWhereUniqueInput[]
-  ): Promise<void> {
-    const data = {
-      Match: {
-        disconnect: body,
-      },
-    };
-    await this.service.updateUser({
-      where: params,
-      data,
-      select: { id: true },
-    });
-  }
-
-  @common.UseInterceptors(AclFilterResponseInterceptor)
-  @common.Get("/:id/Photo")
-  @ApiNestedQuery(PhotoFindManyArgs)
-  @nestAccessControl.UseRoles({
-    resource: "Photo",
-    action: "read",
-    possession: "any",
-  })
-  async findPhoto(
-    @common.Req() request: Request,
-    @common.Param() params: UserWhereUniqueInput
-  ): Promise<Photo[]> {
-    const query = plainToClass(PhotoFindManyArgs, request.query);
-    const results = await this.service.findPhoto(params.id, {
-      ...query,
-      select: {
-        createdAt: true,
-        id: true,
-        isProfilPhoto: true,
-        updatedAt: true,
-        url: true,
-
-        utilisateurs: {
+        user: {
           select: {
             id: true,
           },
@@ -390,18 +311,13 @@ export class UserControllerBase {
     return results;
   }
 
-  @common.Post("/:id/Photo")
-  @nestAccessControl.UseRoles({
-    resource: "User",
-    action: "update",
-    possession: "any",
-  })
-  async connectPhoto(
+  @common.Post("/:id/badges")
+  async connectBadges(
     @common.Param() params: UserWhereUniqueInput,
-    @common.Body() body: PhotoWhereUniqueInput[]
+    @common.Body() body: UserBadgeWhereUniqueInput[]
   ): Promise<void> {
     const data = {
-      Photo: {
+      badges: {
         connect: body,
       },
     };
@@ -412,18 +328,13 @@ export class UserControllerBase {
     });
   }
 
-  @common.Patch("/:id/Photo")
-  @nestAccessControl.UseRoles({
-    resource: "User",
-    action: "update",
-    possession: "any",
-  })
-  async updatePhoto(
+  @common.Patch("/:id/badges")
+  async updateBadges(
     @common.Param() params: UserWhereUniqueInput,
-    @common.Body() body: PhotoWhereUniqueInput[]
+    @common.Body() body: UserBadgeWhereUniqueInput[]
   ): Promise<void> {
     const data = {
-      Photo: {
+      badges: {
         set: body,
       },
     };
@@ -434,18 +345,861 @@ export class UserControllerBase {
     });
   }
 
-  @common.Delete("/:id/Photo")
-  @nestAccessControl.UseRoles({
-    resource: "User",
-    action: "update",
-    possession: "any",
-  })
-  async disconnectPhoto(
+  @common.Delete("/:id/badges")
+  async disconnectBadges(
     @common.Param() params: UserWhereUniqueInput,
-    @common.Body() body: PhotoWhereUniqueInput[]
+    @common.Body() body: UserBadgeWhereUniqueInput[]
   ): Promise<void> {
     const data = {
-      Photo: {
+      badges: {
+        disconnect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Get("/:id/events")
+  @ApiNestedQuery(EventParticipantFindManyArgs)
+  async findEvents(
+    @common.Req() request: Request,
+    @common.Param() params: UserWhereUniqueInput
+  ): Promise<EventParticipant[]> {
+    const query = plainToClass(EventParticipantFindManyArgs, request.query);
+    const results = await this.service.findEvents(params.id, {
+      ...query,
+      select: {
+        event: {
+          select: {
+            id: true,
+          },
+        },
+
+        id: true,
+        status: true,
+
+        user: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/events")
+  async connectEvents(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: EventParticipantWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      events: {
+        connect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/events")
+  async updateEvents(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: EventParticipantWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      events: {
+        set: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/events")
+  async disconnectEvents(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: EventParticipantWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      events: {
+        disconnect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Get("/:id/groups")
+  @ApiNestedQuery(GroupMemberFindManyArgs)
+  async findGroups(
+    @common.Req() request: Request,
+    @common.Param() params: UserWhereUniqueInput
+  ): Promise<GroupMember[]> {
+    const query = plainToClass(GroupMemberFindManyArgs, request.query);
+    const results = await this.service.findGroups(params.id, {
+      ...query,
+      select: {
+        group: {
+          select: {
+            id: true,
+          },
+        },
+
+        id: true,
+        joinedAt: true,
+        role: true,
+
+        user: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/groups")
+  async connectGroups(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: GroupMemberWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      groups: {
+        connect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/groups")
+  async updateGroups(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: GroupMemberWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      groups: {
+        set: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/groups")
+  async disconnectGroups(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: GroupMemberWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      groups: {
+        disconnect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Get("/:id/notifications")
+  @ApiNestedQuery(NotificationFindManyArgs)
+  async findNotifications(
+    @common.Req() request: Request,
+    @common.Param() params: UserWhereUniqueInput
+  ): Promise<Notification[]> {
+    const query = plainToClass(NotificationFindManyArgs, request.query);
+    const results = await this.service.findNotifications(params.id, {
+      ...query,
+      select: {
+        content: true,
+        createdAt: true,
+        id: true,
+        read: true,
+        typeField: true,
+
+        user: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/notifications")
+  async connectNotifications(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: NotificationWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      notifications: {
+        connect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/notifications")
+  async updateNotifications(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: NotificationWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      notifications: {
+        set: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/notifications")
+  async disconnectNotifications(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: NotificationWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      notifications: {
+        disconnect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Get("/:id/receivedLikes")
+  @ApiNestedQuery(LikeFindManyArgs)
+  async findReceivedLikes(
+    @common.Req() request: Request,
+    @common.Param() params: UserWhereUniqueInput
+  ): Promise<Like[]> {
+    const query = plainToClass(LikeFindManyArgs, request.query);
+    const results = await this.service.findReceivedLikes(params.id, {
+      ...query,
+      select: {
+        createdAt: true,
+        id: true,
+
+        receiver: {
+          select: {
+            id: true,
+          },
+        },
+
+        sender: {
+          select: {
+            id: true,
+          },
+        },
+
+        status: true,
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/receivedLikes")
+  async connectReceivedLikes(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: LikeWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      receivedLikes: {
+        connect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/receivedLikes")
+  async updateReceivedLikes(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: LikeWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      receivedLikes: {
+        set: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/receivedLikes")
+  async disconnectReceivedLikes(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: LikeWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      receivedLikes: {
+        disconnect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Get("/:id/receivedMessages")
+  @ApiNestedQuery(MessageFindManyArgs)
+  async findReceivedMessages(
+    @common.Req() request: Request,
+    @common.Param() params: UserWhereUniqueInput
+  ): Promise<Message[]> {
+    const query = plainToClass(MessageFindManyArgs, request.query);
+    const results = await this.service.findReceivedMessages(params.id, {
+      ...query,
+      select: {
+        content: true,
+        createdAt: true,
+        id: true,
+        mediaUrl: true,
+        readAt: true,
+
+        receiver: {
+          select: {
+            id: true,
+          },
+        },
+
+        sender: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/receivedMessages")
+  async connectReceivedMessages(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: MessageWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      receivedMessages: {
+        connect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/receivedMessages")
+  async updateReceivedMessages(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: MessageWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      receivedMessages: {
+        set: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/receivedMessages")
+  async disconnectReceivedMessages(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: MessageWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      receivedMessages: {
+        disconnect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Get("/:id/reports")
+  @ApiNestedQuery(ReportFindManyArgs)
+  async findReports(
+    @common.Req() request: Request,
+    @common.Param() params: UserWhereUniqueInput
+  ): Promise<Report[]> {
+    const query = plainToClass(ReportFindManyArgs, request.query);
+    const results = await this.service.findReports(params.id, {
+      ...query,
+      select: {
+        createdAt: true,
+        description: true,
+        id: true,
+        reason: true,
+
+        reportedUser: {
+          select: {
+            id: true,
+          },
+        },
+
+        status: true,
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/reports")
+  async connectReports(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: ReportWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      reports: {
+        connect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/reports")
+  async updateReports(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: ReportWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      reports: {
+        set: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/reports")
+  async disconnectReports(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: ReportWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      reports: {
+        disconnect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Get("/:id/sentLikes")
+  @ApiNestedQuery(LikeFindManyArgs)
+  async findSentLikes(
+    @common.Req() request: Request,
+    @common.Param() params: UserWhereUniqueInput
+  ): Promise<Like[]> {
+    const query = plainToClass(LikeFindManyArgs, request.query);
+    const results = await this.service.findSentLikes(params.id, {
+      ...query,
+      select: {
+        createdAt: true,
+        id: true,
+
+        receiver: {
+          select: {
+            id: true,
+          },
+        },
+
+        sender: {
+          select: {
+            id: true,
+          },
+        },
+
+        status: true,
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/sentLikes")
+  async connectSentLikes(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: LikeWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      sentLikes: {
+        connect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/sentLikes")
+  async updateSentLikes(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: LikeWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      sentLikes: {
+        set: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/sentLikes")
+  async disconnectSentLikes(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: LikeWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      sentLikes: {
+        disconnect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Get("/:id/sentMessages")
+  @ApiNestedQuery(MessageFindManyArgs)
+  async findSentMessages(
+    @common.Req() request: Request,
+    @common.Param() params: UserWhereUniqueInput
+  ): Promise<Message[]> {
+    const query = plainToClass(MessageFindManyArgs, request.query);
+    const results = await this.service.findSentMessages(params.id, {
+      ...query,
+      select: {
+        content: true,
+        createdAt: true,
+        id: true,
+        mediaUrl: true,
+        readAt: true,
+
+        receiver: {
+          select: {
+            id: true,
+          },
+        },
+
+        sender: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/sentMessages")
+  async connectSentMessages(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: MessageWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      sentMessages: {
+        connect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/sentMessages")
+  async updateSentMessages(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: MessageWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      sentMessages: {
+        set: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/sentMessages")
+  async disconnectSentMessages(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: MessageWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      sentMessages: {
+        disconnect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Get("/:id/socialAccounts")
+  @ApiNestedQuery(SocialAccountFindManyArgs)
+  async findSocialAccounts(
+    @common.Req() request: Request,
+    @common.Param() params: UserWhereUniqueInput
+  ): Promise<SocialAccount[]> {
+    const query = plainToClass(SocialAccountFindManyArgs, request.query);
+    const results = await this.service.findSocialAccounts(params.id, {
+      ...query,
+      select: {
+        id: true,
+        provider: true,
+        providerId: true,
+
+        user: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/socialAccounts")
+  async connectSocialAccounts(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: SocialAccountWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      socialAccounts: {
+        connect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/socialAccounts")
+  async updateSocialAccounts(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: SocialAccountWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      socialAccounts: {
+        set: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/socialAccounts")
+  async disconnectSocialAccounts(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: SocialAccountWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      socialAccounts: {
+        disconnect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Get("/:id/stories")
+  @ApiNestedQuery(StoryFindManyArgs)
+  async findStories(
+    @common.Req() request: Request,
+    @common.Param() params: UserWhereUniqueInput
+  ): Promise<Story[]> {
+    const query = plainToClass(StoryFindManyArgs, request.query);
+    const results = await this.service.findStories(params.id, {
+      ...query,
+      select: {
+        createdAt: true,
+        expiresAt: true,
+        id: true,
+        mediaUrl: true,
+        type: true,
+
+        user: {
+          select: {
+            id: true,
+          },
+        },
+      },
+    });
+    if (results === null) {
+      throw new errors.NotFoundException(
+        `No resource was found for ${JSON.stringify(params)}`
+      );
+    }
+    return results;
+  }
+
+  @common.Post("/:id/stories")
+  async connectStories(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: StoryWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      stories: {
+        connect: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Patch("/:id/stories")
+  async updateStories(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: StoryWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      stories: {
+        set: body,
+      },
+    };
+    await this.service.updateUser({
+      where: params,
+      data,
+      select: { id: true },
+    });
+  }
+
+  @common.Delete("/:id/stories")
+  async disconnectStories(
+    @common.Param() params: UserWhereUniqueInput,
+    @common.Body() body: StoryWhereUniqueInput[]
+  ): Promise<void> {
+    const data = {
+      stories: {
         disconnect: body,
       },
     };

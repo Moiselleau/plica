@@ -8,76 +8,275 @@ generator client {
 }
 
 model User {
-  Match     Match[]
-  Photo     Photo[]
-  Profil    Profil?
-  createdAt DateTime @default(now())
-  email     String?  @unique
-  firstName String?
-  id        String   @id @default(cuid())
-  lastName  String?
-  password  String
-  roles     Json
-  updatedAt DateTime @updatedAt
-  username  String   @unique
+  authMethod         EnumUserAuthMethod         @default(EMAIL)
+  badges             UserBadge[]
+  createdAt          DateTime                   @default(now())
+  email              String                     @unique
+  emailVerified      Boolean                    @default(false)
+  events             EventParticipant[]
+  groups             GroupMember[]
+  id                 String                     @id @default(uuid())
+  notifications      Notification[]
+  passwordHash       String?
+  phoneNumber        String?
+  profile            Profile?
+  receivedLikes      Like[]                     @relation(name: "receivedLikes")
+  receivedMessages   Message[]                  @relation(name: "receivedMessages")
+  reports            Report[]
+  sentLikes          Like[]                     @relation(name: "sentLikes")
+  sentMessages       Message[]                  @relation(name: "sentMessages")
+  socialAccounts     SocialAccount[]
+  stories            Story[]
+  subscription       Subscription?
+  trustScore         Float                      @default(0)
+  updatedAt          DateTime                   @updatedAt
+  verificationStatus EnumUserVerificationStatus @default(PENDING)
 }
 
-model Profil {
-  age          Decimal?
-  createdAt    DateTime             @default(now())
-  description  String?
-  id           String               @id @default(cuid())
-  interets     EnumProfilInterets[]
-  localisation String?
-  sexe         EnumProfilSexe[]
-  updatedAt    DateTime             @updatedAt
-  utilisateurs User?                @relation(fields: [id], references: [id])
-  id           String?              @unique
-
-  @@Profil (1-à-1) Photos (1-à-n) Matchs (n-à-n)
+model Profile {
+  bio         String?
+  bioAudio    String?
+  bioVideo    String?
+  birthDate   DateTime
+  city        String?
+  country     String?
+  firstName   String
+  gender      EnumProfileGender
+  id          String            @id @default(uuid())
+  interests   Interest[]
+  lastActive  DateTime          @default(now())
+  lastName    String?
+  latitude    Float?
+  longitude   Float?
+  matchCount  Int               @default(0)
+  photos      Photo[]
+  preferences Preference?
+  user        User              @relation(fields: [userId], references: [id])
+  userId      String            @unique
+  viewCount   Int               @default(0)
 }
 
-model Photo {
-  createdAt      DateTime @default(now())
-  id             String   @id @default(cuid())
-  isProfilPhoto  Boolean?
-  updatedAt      DateTime @updatedAt
-  url            String?
-  utilisateurs   User?    @relation(fields: [utilisateursId], references: [id])
-  utilisateursId String?
+model Preference {
+  customPreferences String?
+  drinking          Boolean?
+  genderPreference  String
+  id                String   @id @default(uuid())
+  maxAge            Int
+  maxDistance       Int
+  minAge            Int
+  profile           Profile  @relation(fields: [profileId], references: [id])
+  profileId         String   @unique
+  smoking           Boolean?
 }
 
-model Match {
-  createdAt    DateTime  @default(now())
-  id           String    @id @default(cuid())
-  messages     Message[]
-  updatedAt    DateTime  @updatedAt
-  utilisateurs User[]
+model Interest {
+  category String
+  groups   Group[]
+  id       String    @id @default(uuid())
+  name     String    @unique
+  profiles Profile[]
+}
+
+model Like {
+  createdAt  DateTime       @default(now())
+  id         String         @id @default(uuid())
+  receiver   User           @relation(name: "receivedLikes", fields: [receiverId], references: [id])
+  receiverId String
+  sender     User           @relation(name: "sentLikes", fields: [senderId], references: [id])
+  senderId   String
+  status     EnumLikeStatus @default(PENDING)
 }
 
 model Message {
-  contenu   String?
+  content    String
+  createdAt  DateTime  @default(now())
+  id         String    @id @default(uuid())
+  mediaUrl   String?
+  readAt     DateTime?
+  receiver   User      @relation(name: "receivedMessages", fields: [receiverId], references: [id])
+  receiverId String
+  sender     User      @relation(name: "sentMessages", fields: [senderId], references: [id])
+  senderId   String
+}
+
+model Story {
+  createdAt DateTime      @default(now())
+  expiresAt DateTime
+  id        String        @id @default(uuid())
+  mediaUrl  String
+  type      EnumStoryType
+  user      User          @relation(fields: [userId], references: [id])
+  userId    String
+  views     StoryView[]
+}
+
+model Event {
+  city            String?
+  country         String?
+  createdAt       DateTime           @default(now())
+  description     String
+  endDate         DateTime
+  id              String             @id @default(uuid())
+  latitude        Float?
+  longitude       Float?
+  maxParticipants Int?
+  participants    EventParticipant[]
+  startDate       DateTime
+  title           String
+  type            EnumEventType
+}
+
+model Group {
+  createdAt   DateTime      @default(now())
+  description String?
+  id          String        @id @default(uuid())
+  interests   Interest[]
+  members     GroupMember[]
+  name        String
+}
+
+model Subscription {
+  endDate   DateTime?
+  id        String                 @id @default(uuid())
+  startDate DateTime               @default(now())
+  status    EnumSubscriptionStatus @default(ACTIVE)
+  type      EnumSubscriptionType
+  user      User                   @relation(fields: [userId], references: [id])
+  userId    String                 @unique
+}
+
+model SocialAccount {
+  id         String                    @id @default(uuid())
+  provider   EnumSocialAccountProvider
+  providerId String
+  user       User                      @relation(fields: [userId], references: [id])
+  userId     String
+
+  @@unique([provider, providerId])
+}
+
+model Photo {
+  id        String  @id @default(uuid())
+  isMain    Boolean @default(false)
+  profile   Profile @relation(fields: [profileId], references: [id])
+  profileId String
+  url       String
+  verified  Boolean @default(false)
+}
+
+model UserBadge {
+  earnedAt  DateTime @default(now())
+  id        String   @id @default(uuid())
+  typeField String   @map("type")
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+}
+
+model StoryView {
+  id       String   @id @default(uuid())
+  story    Story    @relation(fields: [storyId], references: [id])
+  storyId  String
+  viewedAt DateTime @default(now())
+  viewerId String
+}
+
+model EventParticipant {
+  event   Event  @relation(fields: [eventId], references: [id])
+  eventId String
+  id      String @id @default(uuid())
+  status  String
+  user    User   @relation(fields: [userId], references: [id])
+  userId  String
+
+  @@unique([eventId, userId])
+}
+
+model GroupMember {
+  group    Group    @relation(fields: [groupId], references: [id])
+  groupId  String
+  id       String   @id @default(uuid())
+  joinedAt DateTime @default(now())
+  role     String
+  user     User     @relation(fields: [userId], references: [id])
+  userId   String
+
+  @@unique([groupId, userId])
+}
+
+model Notification {
+  content   String
   createdAt DateTime @default(now())
-  id        String   @id @default(cuid())
-  match     Match[]
-  updatedAt DateTime @updatedAt
+  id        String   @id @default(uuid())
+  read      Boolean  @default(false)
+  typeField String   @map("type")
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
 }
 
-enum EnumProfilInterets {
-  Sport
-  Musique
-  Danse
-  Bar
-  Tv
-  Cinema
-  Karaoke
-  Dormir
-  Plage
-  Nature
-  JeuxVideo
+model Report {
+  createdAt    DateTime @default(now())
+  description  String?
+  id           String   @id @default(uuid())
+  reason       String
+  reportedUser User     @relation(fields: [reportedId], references: [id])
+  reportedId   String
+  status       String   @default("PENDING")
 }
 
-enum EnumProfilSexe {
-  Masculin
-  Feminin
+enum EnumUserAuthMethod {
+  EMAIL
+  GOOGLE
+  FACEBOOK
+  INSTAGRAM
+}
+
+enum EnumUserVerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum EnumProfileGender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum EnumLikeStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum EnumStoryType {
+  IMAGE
+  VIDEO
+  AUDIO
+}
+
+enum EnumEventType {
+  SPEEDDATING
+  SOCIAL
+  WORKSHOP
+  OTHER
+}
+
+enum EnumSubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
+
+enum EnumSubscriptionType {
+  FREE
+  PREMIUM
+  VIP
+}
+
+enum EnumSocialAccountProvider {
+  EMAIL
+  GOOGLE
+  FACEBOOK
+  INSTAGRAM
 }

@@ -5,26 +5,23 @@ import {
   SimpleForm,
   CreateProps,
   BooleanInput,
-  TextInput,
   ReferenceInput,
   SelectInput,
+  TextInput,
 } from "react-admin";
 
-import { UserTitle } from "../user/UserTitle";
+import { ProfileTitle } from "../profile/ProfileTitle";
 
 export const PhotoCreate = (props: CreateProps): React.ReactElement => {
   return (
     <Create {...props}>
       <SimpleForm>
-        <BooleanInput label="isProfilPhoto" source="isProfilPhoto" />
-        <TextInput label="url" source="url" />
-        <ReferenceInput
-          source="utilisateurs.id"
-          reference="User"
-          label="Utilisateurs"
-        >
-          <SelectInput optionText={UserTitle} />
+        <BooleanInput label="Is Main" source="isMain" />
+        <ReferenceInput source="profile.id" reference="Profile" label="Profile">
+          <SelectInput optionText={ProfileTitle} />
         </ReferenceInput>
+        <TextInput label="Url" source="url" />
+        <BooleanInput label="Verified" source="verified" />
       </SimpleForm>
     </Create>
   );

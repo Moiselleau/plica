@@ -1,7 +1,8 @@
-import { UserWhereUniqueInput } from "../user/UserWhereUniqueInput";
+import { ProfileWhereUniqueInput } from "../profile/ProfileWhereUniqueInput";
 
 export type PhotoUpdateInput = {
-  isProfilPhoto?: boolean | null;
-  url?: string | null;
-  utilisateurs?: UserWhereUniqueInput | null;
+  isMain?: boolean;
+  profile?: ProfileWhereUniqueInput;
+  url?: string;
+  verified?: boolean;
 };

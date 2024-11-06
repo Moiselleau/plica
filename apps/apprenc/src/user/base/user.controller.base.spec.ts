@@ -20,44 +20,44 @@ const existingId = "existingId";
 const CREATE_INPUT = {
   createdAt: new Date(),
   email: "exampleEmail",
-  firstName: "exampleFirstName",
+  emailVerified: "true",
   id: "exampleId",
-  lastName: "exampleLastName",
-  password: "examplePassword",
+  passwordHash: "examplePasswordHash",
+  phoneNumber: "examplePhoneNumber",
+  trustScore: 42.42,
   updatedAt: new Date(),
-  username: "exampleUsername",
 };
 const CREATE_RESULT = {
   createdAt: new Date(),
   email: "exampleEmail",
-  firstName: "exampleFirstName",
+  emailVerified: "true",
   id: "exampleId",
-  lastName: "exampleLastName",
-  password: "examplePassword",
+  passwordHash: "examplePasswordHash",
+  phoneNumber: "examplePhoneNumber",
+  trustScore: 42.42,
   updatedAt: new Date(),
-  username: "exampleUsername",
 };
 const FIND_MANY_RESULT = [
   {
     createdAt: new Date(),
     email: "exampleEmail",
-    firstName: "exampleFirstName",
+    emailVerified: "true",
     id: "exampleId",
-    lastName: "exampleLastName",
-    password: "examplePassword",
+    passwordHash: "examplePasswordHash",
+    phoneNumber: "examplePhoneNumber",
+    trustScore: 42.42,
     updatedAt: new Date(),
-    username: "exampleUsername",
   },
 ];
 const FIND_ONE_RESULT = {
   createdAt: new Date(),
   email: "exampleEmail",
-  firstName: "exampleFirstName",
+  emailVerified: "true",
   id: "exampleId",
-  lastName: "exampleLastName",
-  password: "examplePassword",
+  passwordHash: "examplePasswordHash",
+  phoneNumber: "examplePhoneNumber",
+  trustScore: 42.42,
   updatedAt: new Date(),
-  username: "exampleUsername",
 };
 
 const service = {

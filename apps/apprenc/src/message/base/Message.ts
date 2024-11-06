@@ -14,26 +14,23 @@ import { ApiProperty } from "@nestjs/swagger";
 import {
   IsString,
   MaxLength,
-  IsOptional,
   IsDate,
+  IsOptional,
   ValidateNested,
 } from "class-validator";
 import { Type } from "class-transformer";
-import { Match } from "../../match/base/Match";
+import { User } from "../../user/base/User";
 
 @ObjectType()
 class Message {
   @ApiProperty({
-    required: false,
+    required: true,
     type: String,
   })
   @IsString()
-  @MaxLength(1000)
-  @IsOptional()
-  @Field(() => String, {
-    nullable: true,
-  })
-  contenu!: string | null;
+  @MaxLength(256)
+  @Field(() => String)
+  content!: string;
 
   @ApiProperty({
     required: true,
@@ -53,20 +50,42 @@ class Message {
 
   @ApiProperty({
     required: false,
-    type: () => [Match],
+    type: String,
   })
-  @ValidateNested()
-  @Type(() => Match)
+  @IsString()
+  @MaxLength(256)
   @IsOptional()
-  match?: Array<Match>;
+  @Field(() => String, {
+    nullable: true,
+  })
+  mediaUrl!: string | null;
 
   @ApiProperty({
-    required: true,
+    required: false,
   })
   @IsDate()
   @Type(() => Date)
-  @Field(() => Date)
-  updatedAt!: Date;
+  @IsOptional()
+  @Field(() => Date, {
+    nullable: true,
+  })
+  readAt!: Date | null;
+
+  @ApiProperty({
+    required: true,
+    type: () => User,
+  })
+  @ValidateNested()
+  @Type(() => User)
+  receiver?: User;
+
+  @ApiProperty({
+    required: true,
+    type: () => User,
+  })
+  @ValidateNested()
+  @Type(() => User)
+  sender?: User;
 }
 
 export { Message as Message };

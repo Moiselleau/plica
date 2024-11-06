@@ -5,24 +5,26 @@ import {
   SimpleForm,
   CreateProps,
   TextInput,
-  ReferenceArrayInput,
-  SelectArrayInput,
+  DateTimeInput,
+  ReferenceInput,
+  SelectInput,
 } from "react-admin";
 
-import { MatchTitle } from "../match/MatchTitle";
+import { UserTitle } from "../user/UserTitle";
 
 export const MessageCreate = (props: CreateProps): React.ReactElement => {
   return (
     <Create {...props}>
       <SimpleForm>
-        <TextInput label="contenu" source="contenu" />
-        <ReferenceArrayInput source="match" reference="Match">
-          <SelectArrayInput
-            optionText={MatchTitle}
-            parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
-            format={(value: any) => value && value.map((v: any) => v.id)}
-          />
-        </ReferenceArrayInput>
+        <TextInput label="Content" source="content" />
+        <TextInput label="Media Url" source="mediaUrl" />
+        <DateTimeInput label="Read At" source="readAt" />
+        <ReferenceInput source="receiver.id" reference="User" label="Receiver">
+          <SelectInput optionText={UserTitle} />
+        </ReferenceInput>
+        <ReferenceInput source="sender.id" reference="User" label="Sender">
+          <SelectInput optionText={UserTitle} />
+        </ReferenceInput>
       </SimpleForm>
     </Create>
   );

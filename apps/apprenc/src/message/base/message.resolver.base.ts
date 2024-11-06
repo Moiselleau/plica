@@ -13,12 +13,6 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
-import * as nestAccessControl from "nest-access-control";
-import * as gqlACGuard from "../../auth/gqlAC.guard";
-import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
-import * as common from "@nestjs/common";
-import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
-import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { Message } from "./Message";
 import { MessageCountArgs } from "./MessageCountArgs";
 import { MessageFindManyArgs } from "./MessageFindManyArgs";
@@ -26,23 +20,12 @@ import { MessageFindUniqueArgs } from "./MessageFindUniqueArgs";
 import { CreateMessageArgs } from "./CreateMessageArgs";
 import { UpdateMessageArgs } from "./UpdateMessageArgs";
 import { DeleteMessageArgs } from "./DeleteMessageArgs";
-import { MatchFindManyArgs } from "../../match/base/MatchFindManyArgs";
-import { Match } from "../../match/base/Match";
+import { User } from "../../user/base/User";
 import { MessageService } from "../message.service";
-@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => Message)
 export class MessageResolverBase {
-  constructor(
-    protected readonly service: MessageService,
-    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
-  ) {}
+  constructor(protected readonly service: MessageService) {}
 
-  @graphql.Query(() => MetaQueryPayload)
-  @nestAccessControl.UseRoles({
-    resource: "Message",
-    action: "read",
-    possession: "any",
-  })
   async _messagesMeta(
     @graphql.Args() args: MessageCountArgs
   ): Promise<MetaQueryPayload> {
@@ -52,26 +35,14 @@ export class MessageResolverBase {
     };
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [Message])
-  @nestAccessControl.UseRoles({
-    resource: "Message",
-    action: "read",
-    possession: "any",
-  })
   async messages(
     @graphql.Args() args: MessageFindManyArgs
   ): Promise<Message[]> {
     return this.service.messages(args);
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => Message, { nullable: true })
-  @nestAccessControl.UseRoles({
-    resource: "Message",
-    action: "read",
-    possession: "own",
-  })
   async message(
     @graphql.Args() args: MessageFindUniqueArgs
   ): Promise<Message | null> {
@@ -82,36 +53,44 @@ export class MessageResolverBase {
     return result;
   }
 
-  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Message)
-  @nestAccessControl.UseRoles({
-    resource: "Message",
-    action: "create",
-    possession: "any",
-  })
   async createMessage(
     @graphql.Args() args: CreateMessageArgs
   ): Promise<Message> {
     return await this.service.createMessage({
       ...args,
-      data: args.data,
+      data: {
+        ...args.data,
+
+        receiver: {
+          connect: args.data.receiver,
+        },
+
+        sender: {
+          connect: args.data.sender,
+        },
+      },
     });
   }
 
-  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Message)
-  @nestAccessControl.UseRoles({
-    resource: "Message",
-    action: "update",
-    possession: "any",
-  })
   async updateMessage(
     @graphql.Args() args: UpdateMessageArgs
   ): Promise<Message | null> {
     try {
       return await this.service.updateMessage({
         ...args,
-        data: args.data,
+        data: {
+          ...args.data,
+
+          receiver: {
+            connect: args.data.receiver,
+          },
+
+          sender: {
+            connect: args.data.sender,
+          },
+        },
       });
     } catch (error) {
       if (isRecordNotFoundError(error)) {
@@ -124,11 +103,6 @@ export class MessageResolverBase {
   }
 
   @graphql.Mutation(() => Message)
-  @nestAccessControl.UseRoles({
-    resource: "Message",
-    action: "delete",
-    possession: "any",
-  })
   async deleteMessage(
     @graphql.Args() args: DeleteMessageArgs
   ): Promise<Message | null> {
@@ -144,23 +118,29 @@ export class MessageResolverBase {
     }
   }
 
-  @common.UseInterceptors(AclFilterResponseInterceptor)
-  @graphql.ResolveField(() => [Match], { name: "match" })
-  @nestAccessControl.UseRoles({
-    resource: "Match",
-    action: "read",
-    possession: "any",
+  @graphql.ResolveField(() => User, {
+    nullable: true,
+    name: "receiver",
   })
-  async findMatch(
-    @graphql.Parent() parent: Message,
-    @graphql.Args() args: MatchFindManyArgs
-  ): Promise<Match[]> {
-    const results = await this.service.findMatch(parent.id, args);
+  async getReceiver(@graphql.Parent() parent: Message): Promise<User | null> {
+    const result = await this.service.getReceiver(parent.id);
 
-    if (!results) {
-      return [];
+    if (!result) {
+      return null;
     }
+    return result;
+  }
 
-    return results;
+  @graphql.ResolveField(() => User, {
+    nullable: true,
+    name: "sender",
+  })
+  async getSender(@graphql.Parent() parent: Message): Promise<User | null> {
+    const result = await this.service.getSender(parent.id);
+
+    if (!result) {
+      return null;
+    }
+    return result;
   }
 }

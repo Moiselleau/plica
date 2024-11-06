@@ -12,26 +12,16 @@ https://docs.amplication.com/how-to/custom-code
 import { ObjectType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
 import {
-  IsDate,
   IsString,
   IsBoolean,
-  IsOptional,
-  MaxLength,
   ValidateNested,
+  MaxLength,
 } from "class-validator";
+import { Profile } from "../../profile/base/Profile";
 import { Type } from "class-transformer";
-import { User } from "../../user/base/User";
 
 @ObjectType()
 class Photo {
-  @ApiProperty({
-    required: true,
-  })
-  @IsDate()
-  @Type(() => Date)
-  @Field(() => Date)
-  createdAt!: Date;
-
   @ApiProperty({
     required: true,
     type: String,
@@ -41,44 +31,37 @@ class Photo {
   id!: string;
 
   @ApiProperty({
-    required: false,
+    required: true,
     type: Boolean,
   })
   @IsBoolean()
-  @IsOptional()
-  @Field(() => Boolean, {
-    nullable: true,
-  })
-  isProfilPhoto!: boolean | null;
+  @Field(() => Boolean)
+  isMain!: boolean;
 
   @ApiProperty({
     required: true,
+    type: () => Profile,
   })
-  @IsDate()
-  @Type(() => Date)
-  @Field(() => Date)
-  updatedAt!: Date;
+  @ValidateNested()
+  @Type(() => Profile)
+  profile?: Profile;
 
   @ApiProperty({
-    required: false,
+    required: true,
     type: String,
   })
   @IsString()
-  @MaxLength(1000)
-  @IsOptional()
-  @Field(() => String, {
-    nullable: true,
-  })
-  url!: string | null;
+  @MaxLength(256)
+  @Field(() => String)
+  url!: string;
 
   @ApiProperty({
-    required: false,
-    type: () => User,
+    required: true,
+    type: Boolean,
   })
-  @ValidateNested()
-  @Type(() => User)
-  @IsOptional()
-  utilisateurs?: User | null;
+  @IsBoolean()
+  @Field(() => Boolean)
+  verified!: boolean;
 }
 
 export { Photo as Photo };

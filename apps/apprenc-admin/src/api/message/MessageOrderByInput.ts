@@ -1,8 +1,11 @@
 import { SortOrder } from "../../util/SortOrder";
 
 export type MessageOrderByInput = {
-  contenu?: SortOrder;
+  content?: SortOrder;
   createdAt?: SortOrder;
   id?: SortOrder;
-  updatedAt?: SortOrder;
+  mediaUrl?: SortOrder;
+  readAt?: SortOrder;
+  receiverId?: SortOrder;
+  senderId?: SortOrder;
 };

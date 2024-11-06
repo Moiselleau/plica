@@ -1,0 +1,31 @@
+import { StringNullableFilter } from "../../util/StringNullableFilter";
+import { DateTimeFilter } from "../../util/DateTimeFilter";
+import { StringFilter } from "../../util/StringFilter";
+import { InterestListRelationFilter } from "../interest/InterestListRelationFilter";
+import { FloatNullableFilter } from "../../util/FloatNullableFilter";
+import { IntFilter } from "../../util/IntFilter";
+import { PhotoListRelationFilter } from "../photo/PhotoListRelationFilter";
+import { PreferenceWhereUniqueInput } from "../preference/PreferenceWhereUniqueInput";
+import { UserWhereUniqueInput } from "../user/UserWhereUniqueInput";
+
+export type ProfileWhereInput = {
+  bio?: StringNullableFilter;
+  bioAudio?: StringNullableFilter;
+  bioVideo?: StringNullableFilter;
+  birthDate?: DateTimeFilter;
+  city?: StringNullableFilter;
+  country?: StringNullableFilter;
+  firstName?: StringFilter;
+  gender?: "MALE" | "FEMALE" | "OTHER" | "PREFER_NOT_TO_SAY";
+  id?: StringFilter;
+  interests?: InterestListRelationFilter;
+  lastActive?: DateTimeFilter;
+  lastName?: StringNullableFilter;
+  latitude?: FloatNullableFilter;
+  longitude?: FloatNullableFilter;
+  matchCount?: IntFilter;
+  photos?: PhotoListRelationFilter;
+  preferences?: PreferenceWhereUniqueInput;
+  user?: UserWhereUniqueInput;
+  viewCount?: IntFilter;
+};

@@ -14,9 +14,8 @@ import { ApiProperty } from "@nestjs/swagger";
 import { StringFilter } from "../../util/StringFilter";
 import { Type } from "class-transformer";
 import { IsOptional, ValidateNested } from "class-validator";
-import { BooleanNullableFilter } from "../../util/BooleanNullableFilter";
-import { StringNullableFilter } from "../../util/StringNullableFilter";
-import { UserWhereUniqueInput } from "../../user/base/UserWhereUniqueInput";
+import { BooleanFilter } from "../../util/BooleanFilter";
+import { ProfileWhereUniqueInput } from "../../profile/base/ProfileWhereUniqueInput";
 
 @InputType()
 class PhotoWhereInput {
@@ -33,37 +32,48 @@ class PhotoWhereInput {
 
   @ApiProperty({
     required: false,
-    type: BooleanNullableFilter,
+    type: BooleanFilter,
   })
-  @Type(() => BooleanNullableFilter)
+  @Type(() => BooleanFilter)
   @IsOptional()
-  @Field(() => BooleanNullableFilter, {
+  @Field(() => BooleanFilter, {
     nullable: true,
   })
-  isProfilPhoto?: BooleanNullableFilter;
+  isMain?: BooleanFilter;
 
   @ApiProperty({
     required: false,
-    type: StringNullableFilter,
-  })
-  @Type(() => StringNullableFilter)
-  @IsOptional()
-  @Field(() => StringNullableFilter, {
-    nullable: true,
-  })
-  url?: StringNullableFilter;
-
-  @ApiProperty({
-    required: false,
-    type: () => UserWhereUniqueInput,
+    type: () => ProfileWhereUniqueInput,
   })
   @ValidateNested()
-  @Type(() => UserWhereUniqueInput)
+  @Type(() => ProfileWhereUniqueInput)
   @IsOptional()
-  @Field(() => UserWhereUniqueInput, {
+  @Field(() => ProfileWhereUniqueInput, {
     nullable: true,
   })
-  utilisateurs?: UserWhereUniqueInput;
+  profile?: ProfileWhereUniqueInput;
+
+  @ApiProperty({
+    required: false,
+    type: StringFilter,
+  })
+  @Type(() => StringFilter)
+  @IsOptional()
+  @Field(() => StringFilter, {
+    nullable: true,
+  })
+  url?: StringFilter;
+
+  @ApiProperty({
+    required: false,
+    type: BooleanFilter,
+  })
+  @Type(() => BooleanFilter)
+  @IsOptional()
+  @Field(() => BooleanFilter, {
+    nullable: true,
+  })
+  verified?: BooleanFilter;
 }
 
 export { PhotoWhereInput as PhotoWhereInput };

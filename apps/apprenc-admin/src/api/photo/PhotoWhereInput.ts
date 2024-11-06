@@ -1,11 +1,11 @@
 import { StringFilter } from "../../util/StringFilter";
-import { BooleanNullableFilter } from "../../util/BooleanNullableFilter";
-import { StringNullableFilter } from "../../util/StringNullableFilter";
-import { UserWhereUniqueInput } from "../user/UserWhereUniqueInput";
+import { BooleanFilter } from "../../util/BooleanFilter";
+import { ProfileWhereUniqueInput } from "../profile/ProfileWhereUniqueInput";
 
 export type PhotoWhereInput = {
   id?: StringFilter;
-  isProfilPhoto?: BooleanNullableFilter;
-  url?: StringNullableFilter;
-  utilisateurs?: UserWhereUniqueInput;
+  isMain?: BooleanFilter;
+  profile?: ProfileWhereUniqueInput;
+  url?: StringFilter;
+  verified?: BooleanFilter;
 };
