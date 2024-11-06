@@ -18,8 +18,8 @@ import {
   ValidateNested,
   IsOptional,
   IsString,
-  MaxLength,
   IsBoolean,
+  MaxLength,
   IsNumber,
   Max,
 } from "class-validator";
@@ -65,7 +65,6 @@ class UserCreateInput {
     type: String,
   })
   @IsString()
-  @MaxLength(256)
   @Field(() => String)
   email!: string;
 
@@ -118,7 +117,6 @@ class UserCreateInput {
     type: String,
   })
   @IsString()
-  @MaxLength(256)
   @IsOptional()
   @Field(() => String, {
     nullable: true,

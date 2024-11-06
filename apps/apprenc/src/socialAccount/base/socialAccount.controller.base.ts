@@ -16,17 +16,35 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { SocialAccountService } from "../socialAccount.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { SocialAccountCreateInput } from "./SocialAccountCreateInput";
 import { SocialAccount } from "./SocialAccount";
 import { SocialAccountFindManyArgs } from "./SocialAccountFindManyArgs";
 import { SocialAccountWhereUniqueInput } from "./SocialAccountWhereUniqueInput";
 import { SocialAccountUpdateInput } from "./SocialAccountUpdateInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class SocialAccountControllerBase {
-  constructor(protected readonly service: SocialAccountService) {}
+  constructor(
+    protected readonly service: SocialAccountService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: SocialAccount })
+  @nestAccessControl.UseRoles({
+    resource: "SocialAccount",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createSocialAccount(
     @common.Body() data: SocialAccountCreateInput
   ): Promise<SocialAccount> {
@@ -52,9 +70,18 @@ export class SocialAccountControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [SocialAccount] })
   @ApiNestedQuery(SocialAccountFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "SocialAccount",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async socialAccounts(
     @common.Req() request: Request
   ): Promise<SocialAccount[]> {
@@ -75,9 +102,18 @@ export class SocialAccountControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: SocialAccount })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "SocialAccount",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async socialAccount(
     @common.Param() params: SocialAccountWhereUniqueInput
   ): Promise<SocialAccount | null> {
@@ -103,9 +139,18 @@ export class SocialAccountControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: SocialAccount })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "SocialAccount",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateSocialAccount(
     @common.Param() params: SocialAccountWhereUniqueInput,
     @common.Body() data: SocialAccountUpdateInput
@@ -145,6 +190,14 @@ export class SocialAccountControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: SocialAccount })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "SocialAccount",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteSocialAccount(
     @common.Param() params: SocialAccountWhereUniqueInput
   ): Promise<SocialAccount | null> {

@@ -16,17 +16,35 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { UserBadgeService } from "../userBadge.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { UserBadgeCreateInput } from "./UserBadgeCreateInput";
 import { UserBadge } from "./UserBadge";
 import { UserBadgeFindManyArgs } from "./UserBadgeFindManyArgs";
 import { UserBadgeWhereUniqueInput } from "./UserBadgeWhereUniqueInput";
 import { UserBadgeUpdateInput } from "./UserBadgeUpdateInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class UserBadgeControllerBase {
-  constructor(protected readonly service: UserBadgeService) {}
+  constructor(
+    protected readonly service: UserBadgeService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: UserBadge })
+  @nestAccessControl.UseRoles({
+    resource: "UserBadge",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createUserBadge(
     @common.Body() data: UserBadgeCreateInput
   ): Promise<UserBadge> {
@@ -52,9 +70,18 @@ export class UserBadgeControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [UserBadge] })
   @ApiNestedQuery(UserBadgeFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "UserBadge",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async userBadges(@common.Req() request: Request): Promise<UserBadge[]> {
     const args = plainToClass(UserBadgeFindManyArgs, request.query);
     return this.service.userBadges({
@@ -73,9 +100,18 @@ export class UserBadgeControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: UserBadge })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "UserBadge",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async userBadge(
     @common.Param() params: UserBadgeWhereUniqueInput
   ): Promise<UserBadge | null> {
@@ -101,9 +137,18 @@ export class UserBadgeControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: UserBadge })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "UserBadge",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateUserBadge(
     @common.Param() params: UserBadgeWhereUniqueInput,
     @common.Body() data: UserBadgeUpdateInput
@@ -143,6 +188,14 @@ export class UserBadgeControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: UserBadge })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "UserBadge",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteUserBadge(
     @common.Param() params: UserBadgeWhereUniqueInput
   ): Promise<UserBadge | null> {

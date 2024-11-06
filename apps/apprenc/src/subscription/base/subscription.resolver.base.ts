@@ -13,6 +13,12 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { Subscription } from "./Subscription";
 import { SubscriptionCountArgs } from "./SubscriptionCountArgs";
 import { SubscriptionFindManyArgs } from "./SubscriptionFindManyArgs";
@@ -22,10 +28,20 @@ import { UpdateSubscriptionArgs } from "./UpdateSubscriptionArgs";
 import { DeleteSubscriptionArgs } from "./DeleteSubscriptionArgs";
 import { User } from "../../user/base/User";
 import { SubscriptionService } from "../subscription.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => Subscription)
 export class SubscriptionResolverBase {
-  constructor(protected readonly service: SubscriptionService) {}
+  constructor(
+    protected readonly service: SubscriptionService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "Subscription",
+    action: "read",
+    possession: "any",
+  })
   async _subscriptionsMeta(
     @graphql.Args() args: SubscriptionCountArgs
   ): Promise<MetaQueryPayload> {
@@ -35,14 +51,26 @@ export class SubscriptionResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [Subscription])
+  @nestAccessControl.UseRoles({
+    resource: "Subscription",
+    action: "read",
+    possession: "any",
+  })
   async subscriptions(
     @graphql.Args() args: SubscriptionFindManyArgs
   ): Promise<Subscription[]> {
     return this.service.subscriptions(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => Subscription, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "Subscription",
+    action: "read",
+    possession: "own",
+  })
   async subscription(
     @graphql.Args() args: SubscriptionFindUniqueArgs
   ): Promise<Subscription | null> {
@@ -53,7 +81,13 @@ export class SubscriptionResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Subscription)
+  @nestAccessControl.UseRoles({
+    resource: "Subscription",
+    action: "create",
+    possession: "any",
+  })
   async createSubscription(
     @graphql.Args() args: CreateSubscriptionArgs
   ): Promise<Subscription> {
@@ -69,7 +103,13 @@ export class SubscriptionResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Subscription)
+  @nestAccessControl.UseRoles({
+    resource: "Subscription",
+    action: "update",
+    possession: "any",
+  })
   async updateSubscription(
     @graphql.Args() args: UpdateSubscriptionArgs
   ): Promise<Subscription | null> {
@@ -95,6 +135,11 @@ export class SubscriptionResolverBase {
   }
 
   @graphql.Mutation(() => Subscription)
+  @nestAccessControl.UseRoles({
+    resource: "Subscription",
+    action: "delete",
+    possession: "any",
+  })
   async deleteSubscription(
     @graphql.Args() args: DeleteSubscriptionArgs
   ): Promise<Subscription | null> {
@@ -110,9 +155,15 @@ export class SubscriptionResolverBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => User, {
     nullable: true,
     name: "user",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "User",
+    action: "read",
+    possession: "any",
   })
   async getUser(@graphql.Parent() parent: Subscription): Promise<User | null> {
     const result = await this.service.getUser(parent.id);

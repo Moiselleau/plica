@@ -5,6 +5,8 @@ import { Auth0User } from "./base/User";
 import { IAuthStrategy } from "../IAuthStrategy";
 import { UserInfo } from "../UserInfo";
 import { UserService } from "src/user/user.service";
+import { EnumUserAuthMethod } from "../../user/base/EnumUserAuthMethod";
+import { EnumUserVerificationStatus } from "../../user/base/EnumUserVerificationStatus";
 
 @Injectable()
 export class JwtStrategy extends JwtStrategyBase implements IAuthStrategy {
@@ -26,9 +28,12 @@ export class JwtStrategy extends JwtStrategyBase implements IAuthStrategy {
     const userFields = payload.user;
     const defaultData = {
       email: userFields.email,
-      password: "admin",
-      roles: ["user"],
-      username: "admin",
+      authMethod: EnumUserAuthMethod.EMAIL,
+      emailVerified: false,
+      roles: "",
+      trustScore: 0,
+      username: "",
+      verificationStatus: EnumUserVerificationStatus.PENDING,
     };
 
     const newUser = await this.userService.createUser({

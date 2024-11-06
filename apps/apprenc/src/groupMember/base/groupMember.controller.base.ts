@@ -16,17 +16,35 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { GroupMemberService } from "../groupMember.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { GroupMemberCreateInput } from "./GroupMemberCreateInput";
 import { GroupMember } from "./GroupMember";
 import { GroupMemberFindManyArgs } from "./GroupMemberFindManyArgs";
 import { GroupMemberWhereUniqueInput } from "./GroupMemberWhereUniqueInput";
 import { GroupMemberUpdateInput } from "./GroupMemberUpdateInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class GroupMemberControllerBase {
-  constructor(protected readonly service: GroupMemberService) {}
+  constructor(
+    protected readonly service: GroupMemberService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: GroupMember })
+  @nestAccessControl.UseRoles({
+    resource: "GroupMember",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createGroupMember(
     @common.Body() data: GroupMemberCreateInput
   ): Promise<GroupMember> {
@@ -62,9 +80,18 @@ export class GroupMemberControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [GroupMember] })
   @ApiNestedQuery(GroupMemberFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "GroupMember",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async groupMembers(@common.Req() request: Request): Promise<GroupMember[]> {
     const args = plainToClass(GroupMemberFindManyArgs, request.query);
     return this.service.groupMembers({
@@ -89,9 +116,18 @@ export class GroupMemberControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: GroupMember })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "GroupMember",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async groupMember(
     @common.Param() params: GroupMemberWhereUniqueInput
   ): Promise<GroupMember | null> {
@@ -123,9 +159,18 @@ export class GroupMemberControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: GroupMember })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "GroupMember",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateGroupMember(
     @common.Param() params: GroupMemberWhereUniqueInput,
     @common.Body() data: GroupMemberUpdateInput
@@ -175,6 +220,14 @@ export class GroupMemberControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: GroupMember })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "GroupMember",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteGroupMember(
     @common.Param() params: GroupMemberWhereUniqueInput
   ): Promise<GroupMember | null> {

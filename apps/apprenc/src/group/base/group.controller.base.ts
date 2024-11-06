@@ -16,7 +16,11 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { GroupService } from "../group.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { GroupCreateInput } from "./GroupCreateInput";
 import { Group } from "./Group";
 import { GroupFindManyArgs } from "./GroupFindManyArgs";
@@ -29,10 +33,24 @@ import { GroupMemberFindManyArgs } from "../../groupMember/base/GroupMemberFindM
 import { GroupMember } from "../../groupMember/base/GroupMember";
 import { GroupMemberWhereUniqueInput } from "../../groupMember/base/GroupMemberWhereUniqueInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class GroupControllerBase {
-  constructor(protected readonly service: GroupService) {}
+  constructor(
+    protected readonly service: GroupService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Group })
+  @nestAccessControl.UseRoles({
+    resource: "Group",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createGroup(@common.Body() data: GroupCreateInput): Promise<Group> {
     return await this.service.createGroup({
       data: data,
@@ -45,9 +63,18 @@ export class GroupControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [Group] })
   @ApiNestedQuery(GroupFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Group",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async groups(@common.Req() request: Request): Promise<Group[]> {
     const args = plainToClass(GroupFindManyArgs, request.query);
     return this.service.groups({
@@ -61,9 +88,18 @@ export class GroupControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Group })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Group",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async group(
     @common.Param() params: GroupWhereUniqueInput
   ): Promise<Group | null> {
@@ -84,9 +120,18 @@ export class GroupControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Group })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Group",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateGroup(
     @common.Param() params: GroupWhereUniqueInput,
     @common.Body() data: GroupUpdateInput
@@ -115,6 +160,14 @@ export class GroupControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Group })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Group",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteGroup(
     @common.Param() params: GroupWhereUniqueInput
   ): Promise<Group | null> {
@@ -138,8 +191,14 @@ export class GroupControllerBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id/interests")
   @ApiNestedQuery(InterestFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Interest",
+    action: "read",
+    possession: "any",
+  })
   async findInterests(
     @common.Req() request: Request,
     @common.Param() params: GroupWhereUniqueInput
@@ -162,6 +221,11 @@ export class GroupControllerBase {
   }
 
   @common.Post("/:id/interests")
+  @nestAccessControl.UseRoles({
+    resource: "Group",
+    action: "update",
+    possession: "any",
+  })
   async connectInterests(
     @common.Param() params: GroupWhereUniqueInput,
     @common.Body() body: InterestWhereUniqueInput[]
@@ -179,6 +243,11 @@ export class GroupControllerBase {
   }
 
   @common.Patch("/:id/interests")
+  @nestAccessControl.UseRoles({
+    resource: "Group",
+    action: "update",
+    possession: "any",
+  })
   async updateInterests(
     @common.Param() params: GroupWhereUniqueInput,
     @common.Body() body: InterestWhereUniqueInput[]
@@ -196,6 +265,11 @@ export class GroupControllerBase {
   }
 
   @common.Delete("/:id/interests")
+  @nestAccessControl.UseRoles({
+    resource: "Group",
+    action: "update",
+    possession: "any",
+  })
   async disconnectInterests(
     @common.Param() params: GroupWhereUniqueInput,
     @common.Body() body: InterestWhereUniqueInput[]
@@ -212,8 +286,14 @@ export class GroupControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id/members")
   @ApiNestedQuery(GroupMemberFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "GroupMember",
+    action: "read",
+    possession: "any",
+  })
   async findMembers(
     @common.Req() request: Request,
     @common.Param() params: GroupWhereUniqueInput
@@ -248,6 +328,11 @@ export class GroupControllerBase {
   }
 
   @common.Post("/:id/members")
+  @nestAccessControl.UseRoles({
+    resource: "Group",
+    action: "update",
+    possession: "any",
+  })
   async connectMembers(
     @common.Param() params: GroupWhereUniqueInput,
     @common.Body() body: GroupMemberWhereUniqueInput[]
@@ -265,6 +350,11 @@ export class GroupControllerBase {
   }
 
   @common.Patch("/:id/members")
+  @nestAccessControl.UseRoles({
+    resource: "Group",
+    action: "update",
+    possession: "any",
+  })
   async updateMembers(
     @common.Param() params: GroupWhereUniqueInput,
     @common.Body() body: GroupMemberWhereUniqueInput[]
@@ -282,6 +372,11 @@ export class GroupControllerBase {
   }
 
   @common.Delete("/:id/members")
+  @nestAccessControl.UseRoles({
+    resource: "Group",
+    action: "update",
+    possession: "any",
+  })
   async disconnectMembers(
     @common.Param() params: GroupWhereUniqueInput,
     @common.Body() body: GroupMemberWhereUniqueInput[]

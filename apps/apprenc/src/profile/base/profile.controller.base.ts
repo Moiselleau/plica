@@ -16,7 +16,11 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { ProfileService } from "../profile.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { ProfileCreateInput } from "./ProfileCreateInput";
 import { Profile } from "./Profile";
 import { ProfileFindManyArgs } from "./ProfileFindManyArgs";
@@ -29,10 +33,24 @@ import { PhotoFindManyArgs } from "../../photo/base/PhotoFindManyArgs";
 import { Photo } from "../../photo/base/Photo";
 import { PhotoWhereUniqueInput } from "../../photo/base/PhotoWhereUniqueInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class ProfileControllerBase {
-  constructor(protected readonly service: ProfileService) {}
+  constructor(
+    protected readonly service: ProfileService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Profile })
+  @nestAccessControl.UseRoles({
+    resource: "Profile",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createProfile(
     @common.Body() data: ProfileCreateInput
   ): Promise<Profile> {
@@ -83,9 +101,18 @@ export class ProfileControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [Profile] })
   @ApiNestedQuery(ProfileFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Profile",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async profiles(@common.Req() request: Request): Promise<Profile[]> {
     const args = plainToClass(ProfileFindManyArgs, request.query);
     return this.service.profiles({
@@ -123,9 +150,18 @@ export class ProfileControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Profile })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Profile",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async profile(
     @common.Param() params: ProfileWhereUniqueInput
   ): Promise<Profile | null> {
@@ -170,9 +206,18 @@ export class ProfileControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Profile })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Profile",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateProfile(
     @common.Param() params: ProfileWhereUniqueInput,
     @common.Body() data: ProfileUpdateInput
@@ -237,6 +282,14 @@ export class ProfileControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Profile })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Profile",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteProfile(
     @common.Param() params: ProfileWhereUniqueInput
   ): Promise<Profile | null> {
@@ -284,8 +337,14 @@ export class ProfileControllerBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id/interests")
   @ApiNestedQuery(InterestFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Interest",
+    action: "read",
+    possession: "any",
+  })
   async findInterests(
     @common.Req() request: Request,
     @common.Param() params: ProfileWhereUniqueInput
@@ -308,6 +367,11 @@ export class ProfileControllerBase {
   }
 
   @common.Post("/:id/interests")
+  @nestAccessControl.UseRoles({
+    resource: "Profile",
+    action: "update",
+    possession: "any",
+  })
   async connectInterests(
     @common.Param() params: ProfileWhereUniqueInput,
     @common.Body() body: InterestWhereUniqueInput[]
@@ -325,6 +389,11 @@ export class ProfileControllerBase {
   }
 
   @common.Patch("/:id/interests")
+  @nestAccessControl.UseRoles({
+    resource: "Profile",
+    action: "update",
+    possession: "any",
+  })
   async updateInterests(
     @common.Param() params: ProfileWhereUniqueInput,
     @common.Body() body: InterestWhereUniqueInput[]
@@ -342,6 +411,11 @@ export class ProfileControllerBase {
   }
 
   @common.Delete("/:id/interests")
+  @nestAccessControl.UseRoles({
+    resource: "Profile",
+    action: "update",
+    possession: "any",
+  })
   async disconnectInterests(
     @common.Param() params: ProfileWhereUniqueInput,
     @common.Body() body: InterestWhereUniqueInput[]
@@ -358,8 +432,14 @@ export class ProfileControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id/photos")
   @ApiNestedQuery(PhotoFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Photo",
+    action: "read",
+    possession: "any",
+  })
   async findPhotos(
     @common.Req() request: Request,
     @common.Param() params: ProfileWhereUniqueInput
@@ -390,6 +470,11 @@ export class ProfileControllerBase {
   }
 
   @common.Post("/:id/photos")
+  @nestAccessControl.UseRoles({
+    resource: "Profile",
+    action: "update",
+    possession: "any",
+  })
   async connectPhotos(
     @common.Param() params: ProfileWhereUniqueInput,
     @common.Body() body: PhotoWhereUniqueInput[]
@@ -407,6 +492,11 @@ export class ProfileControllerBase {
   }
 
   @common.Patch("/:id/photos")
+  @nestAccessControl.UseRoles({
+    resource: "Profile",
+    action: "update",
+    possession: "any",
+  })
   async updatePhotos(
     @common.Param() params: ProfileWhereUniqueInput,
     @common.Body() body: PhotoWhereUniqueInput[]
@@ -424,6 +514,11 @@ export class ProfileControllerBase {
   }
 
   @common.Delete("/:id/photos")
+  @nestAccessControl.UseRoles({
+    resource: "Profile",
+    action: "update",
+    possession: "any",
+  })
   async disconnectPhotos(
     @common.Param() params: ProfileWhereUniqueInput,
     @common.Body() body: PhotoWhereUniqueInput[]

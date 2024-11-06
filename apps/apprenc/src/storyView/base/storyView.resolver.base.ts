@@ -13,6 +13,12 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { StoryView } from "./StoryView";
 import { StoryViewCountArgs } from "./StoryViewCountArgs";
 import { StoryViewFindManyArgs } from "./StoryViewFindManyArgs";
@@ -22,10 +28,20 @@ import { UpdateStoryViewArgs } from "./UpdateStoryViewArgs";
 import { DeleteStoryViewArgs } from "./DeleteStoryViewArgs";
 import { Story } from "../../story/base/Story";
 import { StoryViewService } from "../storyView.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => StoryView)
 export class StoryViewResolverBase {
-  constructor(protected readonly service: StoryViewService) {}
+  constructor(
+    protected readonly service: StoryViewService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "StoryView",
+    action: "read",
+    possession: "any",
+  })
   async _storyViewsMeta(
     @graphql.Args() args: StoryViewCountArgs
   ): Promise<MetaQueryPayload> {
@@ -35,14 +51,26 @@ export class StoryViewResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [StoryView])
+  @nestAccessControl.UseRoles({
+    resource: "StoryView",
+    action: "read",
+    possession: "any",
+  })
   async storyViews(
     @graphql.Args() args: StoryViewFindManyArgs
   ): Promise<StoryView[]> {
     return this.service.storyViews(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => StoryView, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "StoryView",
+    action: "read",
+    possession: "own",
+  })
   async storyView(
     @graphql.Args() args: StoryViewFindUniqueArgs
   ): Promise<StoryView | null> {
@@ -53,7 +81,13 @@ export class StoryViewResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => StoryView)
+  @nestAccessControl.UseRoles({
+    resource: "StoryView",
+    action: "create",
+    possession: "any",
+  })
   async createStoryView(
     @graphql.Args() args: CreateStoryViewArgs
   ): Promise<StoryView> {
@@ -69,7 +103,13 @@ export class StoryViewResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => StoryView)
+  @nestAccessControl.UseRoles({
+    resource: "StoryView",
+    action: "update",
+    possession: "any",
+  })
   async updateStoryView(
     @graphql.Args() args: UpdateStoryViewArgs
   ): Promise<StoryView | null> {
@@ -95,6 +135,11 @@ export class StoryViewResolverBase {
   }
 
   @graphql.Mutation(() => StoryView)
+  @nestAccessControl.UseRoles({
+    resource: "StoryView",
+    action: "delete",
+    possession: "any",
+  })
   async deleteStoryView(
     @graphql.Args() args: DeleteStoryViewArgs
   ): Promise<StoryView | null> {
@@ -110,9 +155,15 @@ export class StoryViewResolverBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => Story, {
     nullable: true,
     name: "story",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "Story",
+    action: "read",
+    possession: "any",
   })
   async getStory(@graphql.Parent() parent: StoryView): Promise<Story | null> {
     const result = await this.service.getStory(parent.id);

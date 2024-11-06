@@ -16,17 +16,35 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { SubscriptionService } from "../subscription.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { SubscriptionCreateInput } from "./SubscriptionCreateInput";
 import { Subscription } from "./Subscription";
 import { SubscriptionFindManyArgs } from "./SubscriptionFindManyArgs";
 import { SubscriptionWhereUniqueInput } from "./SubscriptionWhereUniqueInput";
 import { SubscriptionUpdateInput } from "./SubscriptionUpdateInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class SubscriptionControllerBase {
-  constructor(protected readonly service: SubscriptionService) {}
+  constructor(
+    protected readonly service: SubscriptionService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Subscription })
+  @nestAccessControl.UseRoles({
+    resource: "Subscription",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createSubscription(
     @common.Body() data: SubscriptionCreateInput
   ): Promise<Subscription> {
@@ -54,9 +72,18 @@ export class SubscriptionControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [Subscription] })
   @ApiNestedQuery(SubscriptionFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Subscription",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async subscriptions(@common.Req() request: Request): Promise<Subscription[]> {
     const args = plainToClass(SubscriptionFindManyArgs, request.query);
     return this.service.subscriptions({
@@ -77,9 +104,18 @@ export class SubscriptionControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Subscription })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Subscription",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async subscription(
     @common.Param() params: SubscriptionWhereUniqueInput
   ): Promise<Subscription | null> {
@@ -107,9 +143,18 @@ export class SubscriptionControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Subscription })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Subscription",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateSubscription(
     @common.Param() params: SubscriptionWhereUniqueInput,
     @common.Body() data: SubscriptionUpdateInput
@@ -151,6 +196,14 @@ export class SubscriptionControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Subscription })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Subscription",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteSubscription(
     @common.Param() params: SubscriptionWhereUniqueInput
   ): Promise<Subscription | null> {

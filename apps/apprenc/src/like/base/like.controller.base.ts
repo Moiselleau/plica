@@ -16,17 +16,35 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { LikeService } from "../like.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { LikeCreateInput } from "./LikeCreateInput";
 import { Like } from "./Like";
 import { LikeFindManyArgs } from "./LikeFindManyArgs";
 import { LikeWhereUniqueInput } from "./LikeWhereUniqueInput";
 import { LikeUpdateInput } from "./LikeUpdateInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class LikeControllerBase {
-  constructor(protected readonly service: LikeService) {}
+  constructor(
+    protected readonly service: LikeService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Like })
+  @nestAccessControl.UseRoles({
+    resource: "Like",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createLike(@common.Body() data: LikeCreateInput): Promise<Like> {
     return await this.service.createLike({
       data: {
@@ -61,9 +79,18 @@ export class LikeControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [Like] })
   @ApiNestedQuery(LikeFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Like",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async likes(@common.Req() request: Request): Promise<Like[]> {
     const args = plainToClass(LikeFindManyArgs, request.query);
     return this.service.likes({
@@ -89,9 +116,18 @@ export class LikeControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Like })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Like",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async like(
     @common.Param() params: LikeWhereUniqueInput
   ): Promise<Like | null> {
@@ -124,9 +160,18 @@ export class LikeControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Like })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Like",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateLike(
     @common.Param() params: LikeWhereUniqueInput,
     @common.Body() data: LikeUpdateInput
@@ -177,6 +222,14 @@ export class LikeControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Like })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Like",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteLike(
     @common.Param() params: LikeWhereUniqueInput
   ): Promise<Like | null> {

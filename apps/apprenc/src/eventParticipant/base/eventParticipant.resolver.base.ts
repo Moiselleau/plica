@@ -13,6 +13,12 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { EventParticipant } from "./EventParticipant";
 import { EventParticipantCountArgs } from "./EventParticipantCountArgs";
 import { EventParticipantFindManyArgs } from "./EventParticipantFindManyArgs";
@@ -23,10 +29,20 @@ import { DeleteEventParticipantArgs } from "./DeleteEventParticipantArgs";
 import { Event } from "../../event/base/Event";
 import { User } from "../../user/base/User";
 import { EventParticipantService } from "../eventParticipant.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => EventParticipant)
 export class EventParticipantResolverBase {
-  constructor(protected readonly service: EventParticipantService) {}
+  constructor(
+    protected readonly service: EventParticipantService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "EventParticipant",
+    action: "read",
+    possession: "any",
+  })
   async _eventParticipantsMeta(
     @graphql.Args() args: EventParticipantCountArgs
   ): Promise<MetaQueryPayload> {
@@ -36,14 +52,26 @@ export class EventParticipantResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [EventParticipant])
+  @nestAccessControl.UseRoles({
+    resource: "EventParticipant",
+    action: "read",
+    possession: "any",
+  })
   async eventParticipants(
     @graphql.Args() args: EventParticipantFindManyArgs
   ): Promise<EventParticipant[]> {
     return this.service.eventParticipants(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => EventParticipant, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "EventParticipant",
+    action: "read",
+    possession: "own",
+  })
   async eventParticipant(
     @graphql.Args() args: EventParticipantFindUniqueArgs
   ): Promise<EventParticipant | null> {
@@ -54,7 +82,13 @@ export class EventParticipantResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => EventParticipant)
+  @nestAccessControl.UseRoles({
+    resource: "EventParticipant",
+    action: "create",
+    possession: "any",
+  })
   async createEventParticipant(
     @graphql.Args() args: CreateEventParticipantArgs
   ): Promise<EventParticipant> {
@@ -74,7 +108,13 @@ export class EventParticipantResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => EventParticipant)
+  @nestAccessControl.UseRoles({
+    resource: "EventParticipant",
+    action: "update",
+    possession: "any",
+  })
   async updateEventParticipant(
     @graphql.Args() args: UpdateEventParticipantArgs
   ): Promise<EventParticipant | null> {
@@ -104,6 +144,11 @@ export class EventParticipantResolverBase {
   }
 
   @graphql.Mutation(() => EventParticipant)
+  @nestAccessControl.UseRoles({
+    resource: "EventParticipant",
+    action: "delete",
+    possession: "any",
+  })
   async deleteEventParticipant(
     @graphql.Args() args: DeleteEventParticipantArgs
   ): Promise<EventParticipant | null> {
@@ -119,9 +164,15 @@ export class EventParticipantResolverBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => Event, {
     nullable: true,
     name: "event",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "Event",
+    action: "read",
+    possession: "any",
   })
   async getEvent(
     @graphql.Parent() parent: EventParticipant
@@ -134,9 +185,15 @@ export class EventParticipantResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => User, {
     nullable: true,
     name: "user",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "User",
+    action: "read",
+    possession: "any",
   })
   async getUser(
     @graphql.Parent() parent: EventParticipant

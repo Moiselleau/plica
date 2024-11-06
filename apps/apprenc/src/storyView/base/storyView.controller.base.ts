@@ -16,17 +16,35 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { StoryViewService } from "../storyView.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { StoryViewCreateInput } from "./StoryViewCreateInput";
 import { StoryView } from "./StoryView";
 import { StoryViewFindManyArgs } from "./StoryViewFindManyArgs";
 import { StoryViewWhereUniqueInput } from "./StoryViewWhereUniqueInput";
 import { StoryViewUpdateInput } from "./StoryViewUpdateInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class StoryViewControllerBase {
-  constructor(protected readonly service: StoryViewService) {}
+  constructor(
+    protected readonly service: StoryViewService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: StoryView })
+  @nestAccessControl.UseRoles({
+    resource: "StoryView",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createStoryView(
     @common.Body() data: StoryViewCreateInput
   ): Promise<StoryView> {
@@ -53,9 +71,18 @@ export class StoryViewControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [StoryView] })
   @ApiNestedQuery(StoryViewFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "StoryView",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async storyViews(@common.Req() request: Request): Promise<StoryView[]> {
     const args = plainToClass(StoryViewFindManyArgs, request.query);
     return this.service.storyViews({
@@ -75,9 +102,18 @@ export class StoryViewControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: StoryView })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "StoryView",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async storyView(
     @common.Param() params: StoryViewWhereUniqueInput
   ): Promise<StoryView | null> {
@@ -104,9 +140,18 @@ export class StoryViewControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: StoryView })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "StoryView",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateStoryView(
     @common.Param() params: StoryViewWhereUniqueInput,
     @common.Body() data: StoryViewUpdateInput
@@ -147,6 +192,14 @@ export class StoryViewControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: StoryView })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "StoryView",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteStoryView(
     @common.Param() params: StoryViewWhereUniqueInput
   ): Promise<StoryView | null> {

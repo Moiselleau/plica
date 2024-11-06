@@ -19,8 +19,8 @@ import {
   IsOptional,
   IsDate,
   IsString,
-  MaxLength,
   IsBoolean,
+  MaxLength,
   IsNumber,
   Max,
 } from "class-validator";
@@ -73,7 +73,6 @@ class User {
     type: String,
   })
   @IsString()
-  @MaxLength(256)
   @Field(() => String)
   email!: string;
 
@@ -119,18 +118,6 @@ class User {
   @Type(() => Notification)
   @IsOptional()
   notifications?: Array<Notification>;
-
-  @ApiProperty({
-    required: false,
-    type: String,
-  })
-  @IsString()
-  @MaxLength(256)
-  @IsOptional()
-  @Field(() => String, {
-    nullable: true,
-  })
-  password!: string | null;
 
   @ApiProperty({
     required: false,

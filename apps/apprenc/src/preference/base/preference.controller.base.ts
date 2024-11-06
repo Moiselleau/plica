@@ -16,17 +16,35 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { PreferenceService } from "../preference.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { PreferenceCreateInput } from "./PreferenceCreateInput";
 import { Preference } from "./Preference";
 import { PreferenceFindManyArgs } from "./PreferenceFindManyArgs";
 import { PreferenceWhereUniqueInput } from "./PreferenceWhereUniqueInput";
 import { PreferenceUpdateInput } from "./PreferenceUpdateInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class PreferenceControllerBase {
-  constructor(protected readonly service: PreferenceService) {}
+  constructor(
+    protected readonly service: PreferenceService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: Preference })
+  @nestAccessControl.UseRoles({
+    resource: "Preference",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createPreference(
     @common.Body() data: PreferenceCreateInput
   ): Promise<Preference> {
@@ -58,9 +76,18 @@ export class PreferenceControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [Preference] })
   @ApiNestedQuery(PreferenceFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "Preference",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async preferences(@common.Req() request: Request): Promise<Preference[]> {
     const args = plainToClass(PreferenceFindManyArgs, request.query);
     return this.service.preferences({
@@ -85,9 +112,18 @@ export class PreferenceControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: Preference })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Preference",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async preference(
     @common.Param() params: PreferenceWhereUniqueInput
   ): Promise<Preference | null> {
@@ -119,9 +155,18 @@ export class PreferenceControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: Preference })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Preference",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updatePreference(
     @common.Param() params: PreferenceWhereUniqueInput,
     @common.Body() data: PreferenceUpdateInput
@@ -167,6 +212,14 @@ export class PreferenceControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: Preference })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "Preference",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deletePreference(
     @common.Param() params: PreferenceWhereUniqueInput
   ): Promise<Preference | null> {

@@ -13,6 +13,12 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { Interest } from "./Interest";
 import { InterestCountArgs } from "./InterestCountArgs";
 import { InterestFindManyArgs } from "./InterestFindManyArgs";
@@ -25,10 +31,20 @@ import { Group } from "../../group/base/Group";
 import { ProfileFindManyArgs } from "../../profile/base/ProfileFindManyArgs";
 import { Profile } from "../../profile/base/Profile";
 import { InterestService } from "../interest.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => Interest)
 export class InterestResolverBase {
-  constructor(protected readonly service: InterestService) {}
+  constructor(
+    protected readonly service: InterestService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "Interest",
+    action: "read",
+    possession: "any",
+  })
   async _interestsMeta(
     @graphql.Args() args: InterestCountArgs
   ): Promise<MetaQueryPayload> {
@@ -38,14 +54,26 @@ export class InterestResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [Interest])
+  @nestAccessControl.UseRoles({
+    resource: "Interest",
+    action: "read",
+    possession: "any",
+  })
   async interests(
     @graphql.Args() args: InterestFindManyArgs
   ): Promise<Interest[]> {
     return this.service.interests(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => Interest, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "Interest",
+    action: "read",
+    possession: "own",
+  })
   async interest(
     @graphql.Args() args: InterestFindUniqueArgs
   ): Promise<Interest | null> {
@@ -56,7 +84,13 @@ export class InterestResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Interest)
+  @nestAccessControl.UseRoles({
+    resource: "Interest",
+    action: "create",
+    possession: "any",
+  })
   async createInterest(
     @graphql.Args() args: CreateInterestArgs
   ): Promise<Interest> {
@@ -66,7 +100,13 @@ export class InterestResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => Interest)
+  @nestAccessControl.UseRoles({
+    resource: "Interest",
+    action: "update",
+    possession: "any",
+  })
   async updateInterest(
     @graphql.Args() args: UpdateInterestArgs
   ): Promise<Interest | null> {
@@ -86,6 +126,11 @@ export class InterestResolverBase {
   }
 
   @graphql.Mutation(() => Interest)
+  @nestAccessControl.UseRoles({
+    resource: "Interest",
+    action: "delete",
+    possession: "any",
+  })
   async deleteInterest(
     @graphql.Args() args: DeleteInterestArgs
   ): Promise<Interest | null> {
@@ -101,7 +146,13 @@ export class InterestResolverBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => [Group], { name: "groups" })
+  @nestAccessControl.UseRoles({
+    resource: "Group",
+    action: "read",
+    possession: "any",
+  })
   async findGroups(
     @graphql.Parent() parent: Interest,
     @graphql.Args() args: GroupFindManyArgs
@@ -115,7 +166,13 @@ export class InterestResolverBase {
     return results;
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => [Profile], { name: "profiles" })
+  @nestAccessControl.UseRoles({
+    resource: "Profile",
+    action: "read",
+    possession: "any",
+  })
   async findProfiles(
     @graphql.Parent() parent: Interest,
     @graphql.Args() args: ProfileFindManyArgs

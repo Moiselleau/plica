@@ -13,6 +13,12 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { SocialAccount } from "./SocialAccount";
 import { SocialAccountCountArgs } from "./SocialAccountCountArgs";
 import { SocialAccountFindManyArgs } from "./SocialAccountFindManyArgs";
@@ -22,10 +28,20 @@ import { UpdateSocialAccountArgs } from "./UpdateSocialAccountArgs";
 import { DeleteSocialAccountArgs } from "./DeleteSocialAccountArgs";
 import { User } from "../../user/base/User";
 import { SocialAccountService } from "../socialAccount.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => SocialAccount)
 export class SocialAccountResolverBase {
-  constructor(protected readonly service: SocialAccountService) {}
+  constructor(
+    protected readonly service: SocialAccountService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "SocialAccount",
+    action: "read",
+    possession: "any",
+  })
   async _socialAccountsMeta(
     @graphql.Args() args: SocialAccountCountArgs
   ): Promise<MetaQueryPayload> {
@@ -35,14 +51,26 @@ export class SocialAccountResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [SocialAccount])
+  @nestAccessControl.UseRoles({
+    resource: "SocialAccount",
+    action: "read",
+    possession: "any",
+  })
   async socialAccounts(
     @graphql.Args() args: SocialAccountFindManyArgs
   ): Promise<SocialAccount[]> {
     return this.service.socialAccounts(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => SocialAccount, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "SocialAccount",
+    action: "read",
+    possession: "own",
+  })
   async socialAccount(
     @graphql.Args() args: SocialAccountFindUniqueArgs
   ): Promise<SocialAccount | null> {
@@ -53,7 +81,13 @@ export class SocialAccountResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => SocialAccount)
+  @nestAccessControl.UseRoles({
+    resource: "SocialAccount",
+    action: "create",
+    possession: "any",
+  })
   async createSocialAccount(
     @graphql.Args() args: CreateSocialAccountArgs
   ): Promise<SocialAccount> {
@@ -69,7 +103,13 @@ export class SocialAccountResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => SocialAccount)
+  @nestAccessControl.UseRoles({
+    resource: "SocialAccount",
+    action: "update",
+    possession: "any",
+  })
   async updateSocialAccount(
     @graphql.Args() args: UpdateSocialAccountArgs
   ): Promise<SocialAccount | null> {
@@ -95,6 +135,11 @@ export class SocialAccountResolverBase {
   }
 
   @graphql.Mutation(() => SocialAccount)
+  @nestAccessControl.UseRoles({
+    resource: "SocialAccount",
+    action: "delete",
+    possession: "any",
+  })
   async deleteSocialAccount(
     @graphql.Args() args: DeleteSocialAccountArgs
   ): Promise<SocialAccount | null> {
@@ -110,9 +155,15 @@ export class SocialAccountResolverBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => User, {
     nullable: true,
     name: "user",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "User",
+    action: "read",
+    possession: "any",
   })
   async getUser(@graphql.Parent() parent: SocialAccount): Promise<User | null> {
     const result = await this.service.getUser(parent.id);

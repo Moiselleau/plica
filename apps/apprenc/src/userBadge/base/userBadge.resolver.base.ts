@@ -13,6 +13,12 @@ import * as graphql from "@nestjs/graphql";
 import { GraphQLError } from "graphql";
 import { isRecordNotFoundError } from "../../prisma.util";
 import { MetaQueryPayload } from "../../util/MetaQueryPayload";
+import * as nestAccessControl from "nest-access-control";
+import * as gqlACGuard from "../../auth/gqlAC.guard";
+import { GqlDefaultAuthGuard } from "../../auth/gqlDefaultAuth.guard";
+import * as common from "@nestjs/common";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
 import { UserBadge } from "./UserBadge";
 import { UserBadgeCountArgs } from "./UserBadgeCountArgs";
 import { UserBadgeFindManyArgs } from "./UserBadgeFindManyArgs";
@@ -22,10 +28,20 @@ import { UpdateUserBadgeArgs } from "./UpdateUserBadgeArgs";
 import { DeleteUserBadgeArgs } from "./DeleteUserBadgeArgs";
 import { User } from "../../user/base/User";
 import { UserBadgeService } from "../userBadge.service";
+@common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => UserBadge)
 export class UserBadgeResolverBase {
-  constructor(protected readonly service: UserBadgeService) {}
+  constructor(
+    protected readonly service: UserBadgeService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
 
+  @graphql.Query(() => MetaQueryPayload)
+  @nestAccessControl.UseRoles({
+    resource: "UserBadge",
+    action: "read",
+    possession: "any",
+  })
   async _userBadgesMeta(
     @graphql.Args() args: UserBadgeCountArgs
   ): Promise<MetaQueryPayload> {
@@ -35,14 +51,26 @@ export class UserBadgeResolverBase {
     };
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => [UserBadge])
+  @nestAccessControl.UseRoles({
+    resource: "UserBadge",
+    action: "read",
+    possession: "any",
+  })
   async userBadges(
     @graphql.Args() args: UserBadgeFindManyArgs
   ): Promise<UserBadge[]> {
     return this.service.userBadges(args);
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.Query(() => UserBadge, { nullable: true })
+  @nestAccessControl.UseRoles({
+    resource: "UserBadge",
+    action: "read",
+    possession: "own",
+  })
   async userBadge(
     @graphql.Args() args: UserBadgeFindUniqueArgs
   ): Promise<UserBadge | null> {
@@ -53,7 +81,13 @@ export class UserBadgeResolverBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => UserBadge)
+  @nestAccessControl.UseRoles({
+    resource: "UserBadge",
+    action: "create",
+    possession: "any",
+  })
   async createUserBadge(
     @graphql.Args() args: CreateUserBadgeArgs
   ): Promise<UserBadge> {
@@ -69,7 +103,13 @@ export class UserBadgeResolverBase {
     });
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @graphql.Mutation(() => UserBadge)
+  @nestAccessControl.UseRoles({
+    resource: "UserBadge",
+    action: "update",
+    possession: "any",
+  })
   async updateUserBadge(
     @graphql.Args() args: UpdateUserBadgeArgs
   ): Promise<UserBadge | null> {
@@ -95,6 +135,11 @@ export class UserBadgeResolverBase {
   }
 
   @graphql.Mutation(() => UserBadge)
+  @nestAccessControl.UseRoles({
+    resource: "UserBadge",
+    action: "delete",
+    possession: "any",
+  })
   async deleteUserBadge(
     @graphql.Args() args: DeleteUserBadgeArgs
   ): Promise<UserBadge | null> {
@@ -110,9 +155,15 @@ export class UserBadgeResolverBase {
     }
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @graphql.ResolveField(() => User, {
     nullable: true,
     name: "user",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "User",
+    action: "read",
+    possession: "any",
   })
   async getUser(@graphql.Parent() parent: UserBadge): Promise<User | null> {
     const result = await this.service.getUser(parent.id);

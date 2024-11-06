@@ -16,17 +16,35 @@ import * as errors from "../../errors";
 import { Request } from "express";
 import { plainToClass } from "class-transformer";
 import { ApiNestedQuery } from "../../decorators/api-nested-query.decorator";
+import * as nestAccessControl from "nest-access-control";
+import * as defaultAuthGuard from "../../auth/defaultAuth.guard";
 import { EventParticipantService } from "../eventParticipant.service";
+import { AclValidateRequestInterceptor } from "../../interceptors/aclValidateRequest.interceptor";
+import { AclFilterResponseInterceptor } from "../../interceptors/aclFilterResponse.interceptor";
 import { EventParticipantCreateInput } from "./EventParticipantCreateInput";
 import { EventParticipant } from "./EventParticipant";
 import { EventParticipantFindManyArgs } from "./EventParticipantFindManyArgs";
 import { EventParticipantWhereUniqueInput } from "./EventParticipantWhereUniqueInput";
 import { EventParticipantUpdateInput } from "./EventParticipantUpdateInput";
 
+@swagger.ApiBearerAuth()
+@common.UseGuards(defaultAuthGuard.DefaultAuthGuard, nestAccessControl.ACGuard)
 export class EventParticipantControllerBase {
-  constructor(protected readonly service: EventParticipantService) {}
+  constructor(
+    protected readonly service: EventParticipantService,
+    protected readonly rolesBuilder: nestAccessControl.RolesBuilder
+  ) {}
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Post()
   @swagger.ApiCreatedResponse({ type: EventParticipant })
+  @nestAccessControl.UseRoles({
+    resource: "EventParticipant",
+    action: "create",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async createEventParticipant(
     @common.Body() data: EventParticipantCreateInput
   ): Promise<EventParticipant> {
@@ -61,9 +79,18 @@ export class EventParticipantControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get()
   @swagger.ApiOkResponse({ type: [EventParticipant] })
   @ApiNestedQuery(EventParticipantFindManyArgs)
+  @nestAccessControl.UseRoles({
+    resource: "EventParticipant",
+    action: "read",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async eventParticipants(
     @common.Req() request: Request
   ): Promise<EventParticipant[]> {
@@ -89,9 +116,18 @@ export class EventParticipantControllerBase {
     });
   }
 
+  @common.UseInterceptors(AclFilterResponseInterceptor)
   @common.Get("/:id")
   @swagger.ApiOkResponse({ type: EventParticipant })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "EventParticipant",
+    action: "read",
+    possession: "own",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async eventParticipant(
     @common.Param() params: EventParticipantWhereUniqueInput
   ): Promise<EventParticipant | null> {
@@ -122,9 +158,18 @@ export class EventParticipantControllerBase {
     return result;
   }
 
+  @common.UseInterceptors(AclValidateRequestInterceptor)
   @common.Patch("/:id")
   @swagger.ApiOkResponse({ type: EventParticipant })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "EventParticipant",
+    action: "update",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async updateEventParticipant(
     @common.Param() params: EventParticipantWhereUniqueInput,
     @common.Body() data: EventParticipantUpdateInput
@@ -173,6 +218,14 @@ export class EventParticipantControllerBase {
   @common.Delete("/:id")
   @swagger.ApiOkResponse({ type: EventParticipant })
   @swagger.ApiNotFoundResponse({ type: errors.NotFoundException })
+  @nestAccessControl.UseRoles({
+    resource: "EventParticipant",
+    action: "delete",
+    possession: "any",
+  })
+  @swagger.ApiForbiddenResponse({
+    type: errors.ForbiddenException,
+  })
   async deleteEventParticipant(
     @common.Param() params: EventParticipantWhereUniqueInput
   ): Promise<EventParticipant | null> {
