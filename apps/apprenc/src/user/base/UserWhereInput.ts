@@ -11,13 +11,55 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { StringNullableFilter } from "../../util/StringNullableFilter";
+import { MatchListRelationFilter } from "../../match/base/MatchListRelationFilter";
+import { ValidateNested, IsOptional } from "class-validator";
 import { Type } from "class-transformer";
-import { IsOptional } from "class-validator";
+import { Match } from "../../match/base/Match";
+import { PhotoListRelationFilter } from "../../photo/base/PhotoListRelationFilter";
+import { Photo } from "../../photo/base/Photo";
+import { ProfilWhereUniqueInput } from "../../profil/base/ProfilWhereUniqueInput";
+import { Profil } from "../../profil/base/Profil";
+import { StringNullableFilter } from "../../util/StringNullableFilter";
 import { StringFilter } from "../../util/StringFilter";
 
 @InputType()
 class UserWhereInput {
+  @ApiProperty({
+    required: false,
+    type: () => MatchListRelationFilter,
+  })
+  @ValidateNested()
+  @Type(() => MatchListRelationFilter)
+  @IsOptional()
+  @Field(() => MatchListRelationFilter, {
+    nullable: true,
+  })
+  Match?: MatchListRelationFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => PhotoListRelationFilter,
+  })
+  @ValidateNested()
+  @Type(() => PhotoListRelationFilter)
+  @IsOptional()
+  @Field(() => PhotoListRelationFilter, {
+    nullable: true,
+  })
+  Photo?: PhotoListRelationFilter;
+
+  @ApiProperty({
+    required: false,
+    type: () => ProfilWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => ProfilWhereUniqueInput)
+  @IsOptional()
+  @Field(() => ProfilWhereUniqueInput, {
+    nullable: true,
+  })
+  Profil?: ProfilWhereUniqueInput;
+
   @ApiProperty({
     required: false,
     type: StringNullableFilter,

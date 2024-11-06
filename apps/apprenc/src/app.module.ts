@@ -1,6 +1,9 @@
 import { Module } from "@nestjs/common";
 import { UserModule } from "./user/user.module";
 import { ProfilModule } from "./profil/profil.module";
+import { PhotoModule } from "./photo/photo.module";
+import { MatchModule } from "./match/match.module";
+import { MessageModule } from "./message/message.module";
 import { HealthModule } from "./health/health.module";
 import { PrismaModule } from "./prisma/prisma.module";
 import { SecretsManagerModule } from "./providers/secrets/secretsManager.module";
@@ -20,6 +23,9 @@ import { AuthModule } from "./auth/auth.module";
     AuthModule,
     UserModule,
     ProfilModule,
+    PhotoModule,
+    MatchModule,
+    MessageModule,
     HealthModule,
     PrismaModule,
     SecretsManagerModule,

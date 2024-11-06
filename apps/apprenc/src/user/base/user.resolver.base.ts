@@ -24,8 +24,13 @@ import { UserCountArgs } from "./UserCountArgs";
 import { UserFindManyArgs } from "./UserFindManyArgs";
 import { UserFindUniqueArgs } from "./UserFindUniqueArgs";
 import { CreateUserArgs } from "./CreateUserArgs";
+import { Profil } from "../../profil/base/Profil";
 import { UpdateUserArgs } from "./UpdateUserArgs";
 import { DeleteUserArgs } from "./DeleteUserArgs";
+import { MatchFindManyArgs } from "../../match/base/MatchFindManyArgs";
+import { Match } from "../../match/base/Match";
+import { PhotoFindManyArgs } from "../../photo/base/PhotoFindManyArgs";
+import { Photo } from "../../photo/base/Photo";
 import { UserService } from "../user.service";
 @common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => User)
@@ -86,7 +91,15 @@ export class UserResolverBase {
   async createUser(@graphql.Args() args: CreateUserArgs): Promise<User> {
     return await this.service.createUser({
       ...args,
-      data: args.data,
+      data: {
+        ...args.data,
+
+        Profil: args.data.Profil
+          ? {
+              connect: args.data.Profil,
+            }
+          : undefined,
+      },
     });
   }
 
@@ -101,7 +114,15 @@ export class UserResolverBase {
     try {
       return await this.service.updateUser({
         ...args,
-        data: args.data,
+        data: {
+          ...args.data,
+
+          Profil: args.data.Profil
+            ? {
+                connect: args.data.Profil,
+              }
+            : undefined,
+        },
       });
     } catch (error) {
       if (isRecordNotFoundError(error)) {
@@ -130,5 +151,64 @@ export class UserResolverBase {
       }
       throw error;
     }
+  }
+
+  @common.UseInterceptors(AclFilterResponseInterceptor)
+  @graphql.ResolveField(() => [Match], { name: "match" })
+  @nestAccessControl.UseRoles({
+    resource: "Match",
+    action: "read",
+    possession: "any",
+  })
+  async findMatch(
+    @graphql.Parent() parent: User,
+    @graphql.Args() args: MatchFindManyArgs
+  ): Promise<Match[]> {
+    const results = await this.service.findMatch(parent.id, args);
+
+    if (!results) {
+      return [];
+    }
+
+    return results;
+  }
+
+  @common.UseInterceptors(AclFilterResponseInterceptor)
+  @graphql.ResolveField(() => [Photo], { name: "photo" })
+  @nestAccessControl.UseRoles({
+    resource: "Photo",
+    action: "read",
+    possession: "any",
+  })
+  async findPhoto(
+    @graphql.Parent() parent: User,
+    @graphql.Args() args: PhotoFindManyArgs
+  ): Promise<Photo[]> {
+    const results = await this.service.findPhoto(parent.id, args);
+
+    if (!results) {
+      return [];
+    }
+
+    return results;
+  }
+
+  @common.UseInterceptors(AclFilterResponseInterceptor)
+  @graphql.ResolveField(() => Profil, {
+    nullable: true,
+    name: "profil",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "Profil",
+    action: "read",
+    possession: "any",
+  })
+  async getProfil(@graphql.Parent() parent: User): Promise<Profil | null> {
+    const result = await this.service.getProfil(parent.id);
+
+    if (!result) {
+      return null;
+    }
+    return result;
   }
 }

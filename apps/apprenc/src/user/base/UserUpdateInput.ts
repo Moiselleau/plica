@@ -11,13 +11,61 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString, IsOptional, MaxLength } from "class-validator";
+import { MatchUpdateManyWithoutUsersInput } from "./MatchUpdateManyWithoutUsersInput";
+import {
+  ValidateNested,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from "class-validator";
+import { Type } from "class-transformer";
+import { Match } from "../../match/base/Match";
+import { PhotoUpdateManyWithoutUsersInput } from "./PhotoUpdateManyWithoutUsersInput";
+import { Photo } from "../../photo/base/Photo";
+import { ProfilWhereUniqueInput } from "../../profil/base/ProfilWhereUniqueInput";
+import { Profil } from "../../profil/base/Profil";
 import { IsJSONValue } from "../../validators";
 import { GraphQLJSON } from "graphql-type-json";
 import { InputJsonValue } from "../../types";
 
 @InputType()
 class UserUpdateInput {
+  @ApiProperty({
+    required: false,
+    type: () => MatchUpdateManyWithoutUsersInput,
+  })
+  @ValidateNested()
+  @Type(() => MatchUpdateManyWithoutUsersInput)
+  @IsOptional()
+  @Field(() => MatchUpdateManyWithoutUsersInput, {
+    nullable: true,
+  })
+  Match?: MatchUpdateManyWithoutUsersInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => PhotoUpdateManyWithoutUsersInput,
+  })
+  @ValidateNested()
+  @Type(() => PhotoUpdateManyWithoutUsersInput)
+  @IsOptional()
+  @Field(() => PhotoUpdateManyWithoutUsersInput, {
+    nullable: true,
+  })
+  Photo?: PhotoUpdateManyWithoutUsersInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => ProfilWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => ProfilWhereUniqueInput)
+  @IsOptional()
+  @Field(() => ProfilWhereUniqueInput, {
+    nullable: true,
+  })
+  Profil?: ProfilWhereUniqueInput | null;
+
   @ApiProperty({
     required: false,
     type: String,

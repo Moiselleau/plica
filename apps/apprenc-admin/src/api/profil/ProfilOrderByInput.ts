@@ -9,4 +9,5 @@ export type ProfilOrderByInput = {
   localisation?: SortOrder;
   sexe?: SortOrder;
   updatedAt?: SortOrder;
+  id?: SortOrder;
 };

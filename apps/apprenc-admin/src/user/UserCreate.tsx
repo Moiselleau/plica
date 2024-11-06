@@ -4,17 +4,40 @@ import {
   Create,
   SimpleForm,
   CreateProps,
+  ReferenceArrayInput,
+  SelectArrayInput,
+  ReferenceInput,
+  SelectInput,
   TextInput,
   PasswordInput,
-  SelectArrayInput,
 } from "react-admin";
 
+import { MatchTitle } from "../match/MatchTitle";
+import { PhotoTitle } from "../photo/PhotoTitle";
+import { ProfilTitle } from "../profil/ProfilTitle";
 import { ROLES_OPTIONS } from "../user/RolesOptions";
 
 export const UserCreate = (props: CreateProps): React.ReactElement => {
   return (
     <Create {...props}>
       <SimpleForm>
+        <ReferenceArrayInput source="Match" reference="Match">
+          <SelectArrayInput
+            optionText={MatchTitle}
+            parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
+            format={(value: any) => value && value.map((v: any) => v.id)}
+          />
+        </ReferenceArrayInput>
+        <ReferenceArrayInput source="Photo" reference="Photo">
+          <SelectArrayInput
+            optionText={PhotoTitle}
+            parse={(value: any) => value && value.map((v: any) => ({ id: v }))}
+            format={(value: any) => value && value.map((v: any) => v.id)}
+          />
+        </ReferenceArrayInput>
+        <ReferenceInput source="Profil.id" reference="Profil" label="Profil">
+          <SelectInput optionText={ProfilTitle} />
+        </ReferenceInput>
         <TextInput label="Email" source="email" type="email" />
         <TextInput label="First Name" source="firstName" />
         <TextInput label="Last Name" source="lastName" />

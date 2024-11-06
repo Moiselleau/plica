@@ -1,4 +1,5 @@
 import * as React from "react";
+
 import {
   Edit,
   SimpleForm,
@@ -6,7 +7,11 @@ import {
   NumberInput,
   TextInput,
   SelectArrayInput,
+  ReferenceInput,
+  SelectInput,
 } from "react-admin";
+
+import { UserTitle } from "../user/UserTitle";
 
 export const ProfilEdit = (props: EditProps): React.ReactElement => {
   return (
@@ -44,6 +49,13 @@ export const ProfilEdit = (props: EditProps): React.ReactElement => {
           optionText="label"
           optionValue="value"
         />
+        <ReferenceInput
+          source="utilisateurs.id"
+          reference="User"
+          label="Utilisateurs"
+        >
+          <SelectInput optionText={UserTitle} />
+        </ReferenceInput>
       </SimpleForm>
     </Edit>
   );

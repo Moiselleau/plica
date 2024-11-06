@@ -47,7 +47,15 @@ export class ProfilControllerBase {
   })
   async createProfil(@common.Body() data: ProfilCreateInput): Promise<Profil> {
     return await this.service.createProfil({
-      data: data,
+      data: {
+        ...data,
+
+        utilisateurs: data.utilisateurs
+          ? {
+              connect: data.utilisateurs,
+            }
+          : undefined,
+      },
       select: {
         age: true,
         createdAt: true,
@@ -57,6 +65,12 @@ export class ProfilControllerBase {
         localisation: true,
         sexe: true,
         updatedAt: true,
+
+        utilisateurs: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
   }
@@ -86,6 +100,12 @@ export class ProfilControllerBase {
         localisation: true,
         sexe: true,
         updatedAt: true,
+
+        utilisateurs: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
   }
@@ -116,6 +136,12 @@ export class ProfilControllerBase {
         localisation: true,
         sexe: true,
         updatedAt: true,
+
+        utilisateurs: {
+          select: {
+            id: true,
+          },
+        },
       },
     });
     if (result === null) {
@@ -145,7 +171,15 @@ export class ProfilControllerBase {
     try {
       return await this.service.updateProfil({
         where: params,
-        data: data,
+        data: {
+          ...data,
+
+          utilisateurs: data.utilisateurs
+            ? {
+                connect: data.utilisateurs,
+              }
+            : undefined,
+        },
         select: {
           age: true,
           createdAt: true,
@@ -155,6 +189,12 @@ export class ProfilControllerBase {
           localisation: true,
           sexe: true,
           updatedAt: true,
+
+          utilisateurs: {
+            select: {
+              id: true,
+            },
+          },
         },
       });
     } catch (error) {
@@ -193,6 +233,12 @@ export class ProfilControllerBase {
           localisation: true,
           sexe: true,
           updatedAt: true,
+
+          utilisateurs: {
+            select: {
+              id: true,
+            },
+          },
         },
       });
     } catch (error) {

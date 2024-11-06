@@ -1,4 +1,5 @@
 import { Decimal } from "decimal.js";
+import { UserWhereUniqueInput } from "../user/UserWhereUniqueInput";
 
 export type ProfilUpdateInput = {
   age?: Decimal | null;
@@ -18,4 +19,5 @@ export type ProfilUpdateInput = {
   >;
   localisation?: string | null;
   sexe?: Array<"Masculin" | "Feminin">;
+  utilisateurs?: UserWhereUniqueInput | null;
 };

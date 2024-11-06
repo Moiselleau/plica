@@ -10,9 +10,20 @@ https://docs.amplication.com/how-to/custom-code
 ------------------------------------------------------------------------------
   */
 import { PrismaService } from "../../prisma/prisma.service";
-import { Prisma, User as PrismaUser } from "@prisma/client";
+
+import {
+  Prisma,
+  User as PrismaUser,
+  Match as PrismaMatch,
+  Photo as PrismaPhoto,
+  Profil as PrismaProfil,
+} from "@prisma/client";
+
 import { PasswordService } from "../../auth/password.service";
 import { transformStringFieldUpdateInput } from "../../prisma.util";
+import { Match } from "../../match/base/Match";
+import { Photo } from "../../photo/base/Photo";
+import { Profil } from "../../profil/base/Profil";
 
 export class UserServiceBase {
   constructor(
@@ -58,5 +69,35 @@ export class UserServiceBase {
   }
   async deleteUser(args: Prisma.UserDeleteArgs): Promise<PrismaUser> {
     return this.prisma.user.delete(args);
+  }
+
+  async findMatch(
+    parentId: string,
+    args: Prisma.MatchFindManyArgs
+  ): Promise<PrismaMatch[]> {
+    return this.prisma.user
+      .findUniqueOrThrow({
+        where: { id: parentId },
+      })
+      .Match(args);
+  }
+
+  async findPhoto(
+    parentId: string,
+    args: Prisma.PhotoFindManyArgs
+  ): Promise<PrismaPhoto[]> {
+    return this.prisma.user
+      .findUniqueOrThrow({
+        where: { id: parentId },
+      })
+      .Photo(args);
+  }
+
+  async getProfil(parentId: string): Promise<PrismaProfil | null> {
+    return this.prisma.user
+      .findUnique({
+        where: { id: parentId },
+      })
+      .Profil();
   }
 }

@@ -18,10 +18,13 @@ import {
   IsString,
   MaxLength,
   IsEnum,
+  ValidateNested,
 } from "class-validator";
 import { Decimal } from "decimal.js";
 import { EnumProfilInterets } from "./EnumProfilInterets";
 import { EnumProfilSexe } from "./EnumProfilSexe";
+import { UserWhereUniqueInput } from "../../user/base/UserWhereUniqueInput";
+import { Type } from "class-transformer";
 
 @InputType()
 class ProfilUpdateInput {
@@ -99,6 +102,18 @@ class ProfilUpdateInput {
     nullable: true,
   })
   sexe?: Array<"Masculin" | "Feminin">;
+
+  @ApiProperty({
+    required: false,
+    type: () => UserWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => UserWhereUniqueInput)
+  @IsOptional()
+  @Field(() => UserWhereUniqueInput, {
+    nullable: true,
+  })
+  utilisateurs?: UserWhereUniqueInput | null;
 }
 
 export { ProfilUpdateInput as ProfilUpdateInput };

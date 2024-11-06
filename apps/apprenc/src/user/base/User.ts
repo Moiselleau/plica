@@ -11,14 +11,50 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { ObjectType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsDate, IsString, IsOptional, MaxLength } from "class-validator";
+import { Match } from "../../match/base/Match";
+import {
+  ValidateNested,
+  IsOptional,
+  IsDate,
+  IsString,
+  MaxLength,
+} from "class-validator";
 import { Type } from "class-transformer";
+import { Photo } from "../../photo/base/Photo";
+import { Profil } from "../../profil/base/Profil";
 import { IsJSONValue } from "../../validators";
 import { GraphQLJSON } from "graphql-type-json";
 import { JsonValue } from "type-fest";
 
 @ObjectType()
 class User {
+  @ApiProperty({
+    required: false,
+    type: () => [Match],
+  })
+  @ValidateNested()
+  @Type(() => Match)
+  @IsOptional()
+  Match?: Array<Match>;
+
+  @ApiProperty({
+    required: false,
+    type: () => [Photo],
+  })
+  @ValidateNested()
+  @Type(() => Photo)
+  @IsOptional()
+  Photo?: Array<Photo>;
+
+  @ApiProperty({
+    required: false,
+    type: () => Profil,
+  })
+  @ValidateNested()
+  @Type(() => Profil)
+  @IsOptional()
+  Profil?: Profil | null;
+
   @ApiProperty({
     required: true,
   })

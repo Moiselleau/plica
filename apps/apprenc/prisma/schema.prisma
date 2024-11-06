@@ -8,6 +8,9 @@ generator client {
 }
 
 model User {
+  Match     Match[]
+  Photo     Photo[]
+  Profil    Profil?
   createdAt DateTime @default(now())
   email     String?  @unique
   firstName String?
@@ -28,6 +31,36 @@ model Profil {
   localisation String?
   sexe         EnumProfilSexe[]
   updatedAt    DateTime             @updatedAt
+  utilisateurs User?                @relation(fields: [id], references: [id])
+  id           String?              @unique
+
+  @@Profil (1-à-1) Photos (1-à-n) Matchs (n-à-n)
+}
+
+model Photo {
+  createdAt      DateTime @default(now())
+  id             String   @id @default(cuid())
+  isProfilPhoto  Boolean?
+  updatedAt      DateTime @updatedAt
+  url            String?
+  utilisateurs   User?    @relation(fields: [utilisateursId], references: [id])
+  utilisateursId String?
+}
+
+model Match {
+  createdAt    DateTime  @default(now())
+  id           String    @id @default(cuid())
+  messages     Message[]
+  updatedAt    DateTime  @updatedAt
+  utilisateurs User[]
+}
+
+model Message {
+  contenu   String?
+  createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  match     Match[]
+  updatedAt DateTime @updatedAt
 }
 
 enum EnumProfilInterets {

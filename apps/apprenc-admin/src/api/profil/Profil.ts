@@ -1,4 +1,5 @@
 import { Decimal } from "decimal.js";
+import { User } from "../user/User";
 
 export type Profil = {
   age: Decimal | null;
@@ -21,4 +22,5 @@ export type Profil = {
   localisation: string | null;
   sexe?: Array<"Masculin" | "Feminin">;
   updatedAt: Date;
+  utilisateurs?: User | null;
 };

@@ -11,13 +11,61 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { InputType, Field } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
-import { IsString, IsOptional, MaxLength } from "class-validator";
+import { MatchCreateNestedManyWithoutUsersInput } from "./MatchCreateNestedManyWithoutUsersInput";
+import {
+  ValidateNested,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from "class-validator";
+import { Type } from "class-transformer";
+import { Match } from "../../match/base/Match";
+import { PhotoCreateNestedManyWithoutUsersInput } from "./PhotoCreateNestedManyWithoutUsersInput";
+import { Photo } from "../../photo/base/Photo";
+import { ProfilWhereUniqueInput } from "../../profil/base/ProfilWhereUniqueInput";
+import { Profil } from "../../profil/base/Profil";
 import { IsJSONValue } from "../../validators";
 import { GraphQLJSON } from "graphql-type-json";
 import { InputJsonValue } from "../../types";
 
 @InputType()
 class UserCreateInput {
+  @ApiProperty({
+    required: false,
+    type: () => MatchCreateNestedManyWithoutUsersInput,
+  })
+  @ValidateNested()
+  @Type(() => MatchCreateNestedManyWithoutUsersInput)
+  @IsOptional()
+  @Field(() => MatchCreateNestedManyWithoutUsersInput, {
+    nullable: true,
+  })
+  Match?: MatchCreateNestedManyWithoutUsersInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => PhotoCreateNestedManyWithoutUsersInput,
+  })
+  @ValidateNested()
+  @Type(() => PhotoCreateNestedManyWithoutUsersInput)
+  @IsOptional()
+  @Field(() => PhotoCreateNestedManyWithoutUsersInput, {
+    nullable: true,
+  })
+  Photo?: PhotoCreateNestedManyWithoutUsersInput;
+
+  @ApiProperty({
+    required: false,
+    type: () => ProfilWhereUniqueInput,
+  })
+  @ValidateNested()
+  @Type(() => ProfilWhereUniqueInput)
+  @IsOptional()
+  @Field(() => ProfilWhereUniqueInput, {
+    nullable: true,
+  })
+  Profil?: ProfilWhereUniqueInput | null;
+
   @ApiProperty({
     required: false,
     type: String,

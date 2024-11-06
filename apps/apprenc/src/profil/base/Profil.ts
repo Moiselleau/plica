@@ -11,6 +11,7 @@ https://docs.amplication.com/how-to/custom-code
   */
 import { ObjectType, Field, Float } from "@nestjs/graphql";
 import { ApiProperty } from "@nestjs/swagger";
+
 import {
   IsNumber,
   Max,
@@ -19,11 +20,14 @@ import {
   IsString,
   MaxLength,
   IsEnum,
+  ValidateNested,
 } from "class-validator";
+
 import { Decimal } from "decimal.js";
 import { Type } from "class-transformer";
 import { EnumProfilInterets } from "./EnumProfilInterets";
 import { EnumProfilSexe } from "./EnumProfilSexe";
+import { User } from "../../user/base/User";
 
 @ObjectType()
 class Profil {
@@ -125,6 +129,15 @@ class Profil {
   @Type(() => Date)
   @Field(() => Date)
   updatedAt!: Date;
+
+  @ApiProperty({
+    required: false,
+    type: () => User,
+  })
+  @ValidateNested()
+  @Type(() => User)
+  @IsOptional()
+  utilisateurs?: User | null;
 }
 
 export { Profil as Profil };

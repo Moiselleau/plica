@@ -26,6 +26,7 @@ import { ProfilFindUniqueArgs } from "./ProfilFindUniqueArgs";
 import { CreateProfilArgs } from "./CreateProfilArgs";
 import { UpdateProfilArgs } from "./UpdateProfilArgs";
 import { DeleteProfilArgs } from "./DeleteProfilArgs";
+import { User } from "../../user/base/User";
 import { ProfilService } from "../profil.service";
 @common.UseGuards(GqlDefaultAuthGuard, gqlACGuard.GqlACGuard)
 @graphql.Resolver(() => Profil)
@@ -88,7 +89,15 @@ export class ProfilResolverBase {
   async createProfil(@graphql.Args() args: CreateProfilArgs): Promise<Profil> {
     return await this.service.createProfil({
       ...args,
-      data: args.data,
+      data: {
+        ...args.data,
+
+        utilisateurs: args.data.utilisateurs
+          ? {
+              connect: args.data.utilisateurs,
+            }
+          : undefined,
+      },
     });
   }
 
@@ -105,7 +114,15 @@ export class ProfilResolverBase {
     try {
       return await this.service.updateProfil({
         ...args,
-        data: args.data,
+        data: {
+          ...args.data,
+
+          utilisateurs: args.data.utilisateurs
+            ? {
+                connect: args.data.utilisateurs,
+              }
+            : undefined,
+        },
       });
     } catch (error) {
       if (isRecordNotFoundError(error)) {
@@ -136,5 +153,26 @@ export class ProfilResolverBase {
       }
       throw error;
     }
+  }
+
+  @common.UseInterceptors(AclFilterResponseInterceptor)
+  @graphql.ResolveField(() => User, {
+    nullable: true,
+    name: "utilisateurs",
+  })
+  @nestAccessControl.UseRoles({
+    resource: "User",
+    action: "read",
+    possession: "any",
+  })
+  async getUtilisateurs(
+    @graphql.Parent() parent: Profil
+  ): Promise<User | null> {
+    const result = await this.service.getUtilisateurs(parent.id);
+
+    if (!result) {
+      return null;
+    }
+    return result;
   }
 }
