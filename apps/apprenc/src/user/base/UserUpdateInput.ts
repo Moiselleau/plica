@@ -132,7 +132,7 @@ class UserUpdateInput {
   @Field(() => String, {
     nullable: true,
   })
-  passwordHash?: string | null;
+  password?: string | null;
 
   @ApiProperty({
     required: false,
@@ -193,6 +193,18 @@ class UserUpdateInput {
     nullable: true,
   })
   reports?: ReportUpdateManyWithoutUsersInput;
+
+  @ApiProperty({
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @MaxLength(1000)
+  @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+  })
+  roles?: string;
 
   @ApiProperty({
     required: false,
@@ -265,6 +277,18 @@ class UserUpdateInput {
     nullable: true,
   })
   trustScore?: number;
+
+  @ApiProperty({
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @MaxLength(1000)
+  @IsOptional()
+  @Field(() => String, {
+    nullable: true,
+  })
+  username?: string;
 
   @ApiProperty({
     required: false,

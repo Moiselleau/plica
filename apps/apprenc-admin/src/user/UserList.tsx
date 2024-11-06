@@ -23,11 +23,12 @@ export const UserList = (props: ListProps): React.ReactElement => {
         <TextField label="Email" source="email" />
         <BooleanField label="Email Verified" source="emailVerified" />
         <TextField label="ID" source="id" />
-        <TextField label="Password Hash" source="passwordHash" />
+        <TextField label="password " source="password" />
         <TextField label="Phone Number" source="phoneNumber" />
         <ReferenceField label="Profile" source="profile.id" reference="Profile">
           <TextField source={PROFILE_TITLE_FIELD} />
         </ReferenceField>
+        <TextField label="roles" source="roles" />
         <ReferenceField
           label="Subscription"
           source="subscription.id"
@@ -37,6 +38,7 @@ export const UserList = (props: ListProps): React.ReactElement => {
         </ReferenceField>
         <TextField label="Trust Score" source="trustScore" />
         <DateField source="updatedAt" label="Updated At" />
+        <TextField label="username" source="username" />
         <TextField
           label="Verification Status"
           source="verificationStatus"

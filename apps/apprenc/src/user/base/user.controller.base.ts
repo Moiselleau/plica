@@ -77,7 +77,7 @@ export class UserControllerBase {
         email: true,
         emailVerified: true,
         id: true,
-        passwordHash: true,
+        password: true,
         phoneNumber: true,
 
         profile: {
@@ -85,6 +85,8 @@ export class UserControllerBase {
             id: true,
           },
         },
+
+        roles: true,
 
         subscription: {
           select: {
@@ -94,6 +96,7 @@ export class UserControllerBase {
 
         trustScore: true,
         updatedAt: true,
+        username: true,
         verificationStatus: true,
       },
     });
@@ -112,7 +115,7 @@ export class UserControllerBase {
         email: true,
         emailVerified: true,
         id: true,
-        passwordHash: true,
+        password: true,
         phoneNumber: true,
 
         profile: {
@@ -120,6 +123,8 @@ export class UserControllerBase {
             id: true,
           },
         },
+
+        roles: true,
 
         subscription: {
           select: {
@@ -129,6 +134,7 @@ export class UserControllerBase {
 
         trustScore: true,
         updatedAt: true,
+        username: true,
         verificationStatus: true,
       },
     });
@@ -148,7 +154,7 @@ export class UserControllerBase {
         email: true,
         emailVerified: true,
         id: true,
-        passwordHash: true,
+        password: true,
         phoneNumber: true,
 
         profile: {
@@ -156,6 +162,8 @@ export class UserControllerBase {
             id: true,
           },
         },
+
+        roles: true,
 
         subscription: {
           select: {
@@ -165,6 +173,7 @@ export class UserControllerBase {
 
         trustScore: true,
         updatedAt: true,
+        username: true,
         verificationStatus: true,
       },
     });
@@ -207,7 +216,7 @@ export class UserControllerBase {
           email: true,
           emailVerified: true,
           id: true,
-          passwordHash: true,
+          password: true,
           phoneNumber: true,
 
           profile: {
@@ -215,6 +224,8 @@ export class UserControllerBase {
               id: true,
             },
           },
+
+          roles: true,
 
           subscription: {
             select: {
@@ -224,6 +235,7 @@ export class UserControllerBase {
 
           trustScore: true,
           updatedAt: true,
+          username: true,
           verificationStatus: true,
         },
       });
@@ -252,7 +264,7 @@ export class UserControllerBase {
           email: true,
           emailVerified: true,
           id: true,
-          passwordHash: true,
+          password: true,
           phoneNumber: true,
 
           profile: {
@@ -260,6 +272,8 @@ export class UserControllerBase {
               id: true,
             },
           },
+
+          roles: true,
 
           subscription: {
             select: {
@@ -269,6 +283,7 @@ export class UserControllerBase {
 
           trustScore: true,
           updatedAt: true,
+          username: true,
           verificationStatus: true,
         },
       });

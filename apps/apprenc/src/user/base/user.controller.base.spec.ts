@@ -22,20 +22,24 @@ const CREATE_INPUT = {
   email: "exampleEmail",
   emailVerified: "true",
   id: "exampleId",
-  passwordHash: "examplePasswordHash",
+  password: "examplePassword",
   phoneNumber: "examplePhoneNumber",
+  roles: "exampleRoles",
   trustScore: 42.42,
   updatedAt: new Date(),
+  username: "exampleUsername",
 };
 const CREATE_RESULT = {
   createdAt: new Date(),
   email: "exampleEmail",
   emailVerified: "true",
   id: "exampleId",
-  passwordHash: "examplePasswordHash",
+  password: "examplePassword",
   phoneNumber: "examplePhoneNumber",
+  roles: "exampleRoles",
   trustScore: 42.42,
   updatedAt: new Date(),
+  username: "exampleUsername",
 };
 const FIND_MANY_RESULT = [
   {
@@ -43,10 +47,12 @@ const FIND_MANY_RESULT = [
     email: "exampleEmail",
     emailVerified: "true",
     id: "exampleId",
-    passwordHash: "examplePasswordHash",
+    password: "examplePassword",
     phoneNumber: "examplePhoneNumber",
+    roles: "exampleRoles",
     trustScore: 42.42,
     updatedAt: new Date(),
+    username: "exampleUsername",
   },
 ];
 const FIND_ONE_RESULT = {
@@ -54,10 +60,12 @@ const FIND_ONE_RESULT = {
   email: "exampleEmail",
   emailVerified: "true",
   id: "exampleId",
-  passwordHash: "examplePasswordHash",
+  password: "examplePassword",
   phoneNumber: "examplePhoneNumber",
+  roles: "exampleRoles",
   trustScore: 42.42,
   updatedAt: new Date(),
+  username: "exampleUsername",
 };
 
 const service = {

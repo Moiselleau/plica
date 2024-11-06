@@ -17,12 +17,13 @@ model User {
   groups             GroupMember[]
   id                 String                     @id @default(uuid())
   notifications      Notification[]
-  passwordHash       String?
+  password           String?
   phoneNumber        String?
   profile            Profile?
   receivedLikes      Like[]                     @relation(name: "receivedLikes")
   receivedMessages   Message[]                  @relation(name: "receivedMessages")
   reports            Report[]
+  roles              String
   sentLikes          Like[]                     @relation(name: "sentLikes")
   sentMessages       Message[]                  @relation(name: "sentMessages")
   socialAccounts     SocialAccount[]
@@ -30,6 +31,7 @@ model User {
   subscription       Subscription?
   trustScore         Float                      @default(0)
   updatedAt          DateTime                   @updatedAt
+  username           String                     @unique
   verificationStatus EnumUserVerificationStatus @default(PENDING)
 }
 

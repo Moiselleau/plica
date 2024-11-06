@@ -123,7 +123,7 @@ class UserCreateInput {
   @Field(() => String, {
     nullable: true,
   })
-  passwordHash?: string | null;
+  password?: string | null;
 
   @ApiProperty({
     required: false,
@@ -184,6 +184,15 @@ class UserCreateInput {
     nullable: true,
   })
   reports?: ReportCreateNestedManyWithoutUsersInput;
+
+  @ApiProperty({
+    required: true,
+    type: String,
+  })
+  @IsString()
+  @MaxLength(1000)
+  @Field(() => String)
+  roles!: string;
 
   @ApiProperty({
     required: false,
@@ -253,6 +262,15 @@ class UserCreateInput {
   @Max(99999999999)
   @Field(() => Number)
   trustScore!: number;
+
+  @ApiProperty({
+    required: true,
+    type: String,
+  })
+  @IsString()
+  @MaxLength(1000)
+  @Field(() => String)
+  username!: string;
 
   @ApiProperty({
     required: true,

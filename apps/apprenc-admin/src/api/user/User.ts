@@ -20,12 +20,13 @@ export type User = {
   groups?: Array<GroupMember>;
   id: string;
   notifications?: Array<Notification>;
-  passwordHash: string | null;
+  password: string | null;
   phoneNumber: string | null;
   profile?: Profile | null;
   receivedLikes?: Array<Like>;
   receivedMessages?: Array<Message>;
   reports?: Array<Report>;
+  roles: string;
   sentLikes?: Array<Like>;
   sentMessages?: Array<Message>;
   socialAccounts?: Array<SocialAccount>;
@@ -33,5 +34,6 @@ export type User = {
   subscription?: Subscription | null;
   trustScore: number;
   updatedAt: Date;
+  username: string;
   verificationStatus?: "PENDING" | "VERIFIED" | "REJECTED";
 };

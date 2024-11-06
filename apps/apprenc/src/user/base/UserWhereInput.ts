@@ -146,7 +146,7 @@ class UserWhereInput {
   @Field(() => StringNullableFilter, {
     nullable: true,
   })
-  passwordHash?: StringNullableFilter;
+  password?: StringNullableFilter;
 
   @ApiProperty({
     required: false,
@@ -206,6 +206,17 @@ class UserWhereInput {
     nullable: true,
   })
   reports?: ReportListRelationFilter;
+
+  @ApiProperty({
+    required: false,
+    type: StringFilter,
+  })
+  @Type(() => StringFilter)
+  @IsOptional()
+  @Field(() => StringFilter, {
+    nullable: true,
+  })
+  roles?: StringFilter;
 
   @ApiProperty({
     required: false,
@@ -288,6 +299,17 @@ class UserWhereInput {
     nullable: true,
   })
   updatedAt?: DateTimeFilter;
+
+  @ApiProperty({
+    required: false,
+    type: StringFilter,
+  })
+  @Type(() => StringFilter)
+  @IsOptional()
+  @Field(() => StringFilter, {
+    nullable: true,
+  })
+  username?: StringFilter;
 
   @ApiProperty({
     required: false,

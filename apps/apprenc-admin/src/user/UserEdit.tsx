@@ -71,7 +71,7 @@ export const UserEdit = (props: EditProps): React.ReactElement => {
             format={(value: any) => value && value.map((v: any) => v.id)}
           />
         </ReferenceArrayInput>
-        <TextInput label="Password Hash" source="passwordHash" />
+        <TextInput label="password " source="password" />
         <TextInput label="Phone Number" source="phoneNumber" />
         <ReferenceInput source="profile.id" reference="Profile" label="Profile">
           <SelectInput optionText={ProfileTitle} />
@@ -97,6 +97,7 @@ export const UserEdit = (props: EditProps): React.ReactElement => {
             format={(value: any) => value && value.map((v: any) => v.id)}
           />
         </ReferenceArrayInput>
+        <TextInput label="roles" source="roles" />
         <ReferenceArrayInput source="sentLikes" reference="Like">
           <SelectArrayInput
             optionText={LikeTitle}
@@ -133,6 +134,7 @@ export const UserEdit = (props: EditProps): React.ReactElement => {
           <SelectInput optionText={SubscriptionTitle} />
         </ReferenceInput>
         <NumberInput label="Trust Score" source="trustScore" />
+        <TextInput label="username" source="username" />
         <SelectInput
           source="verificationStatus"
           label="Verification Status"

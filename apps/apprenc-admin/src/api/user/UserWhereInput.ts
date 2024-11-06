@@ -25,12 +25,13 @@ export type UserWhereInput = {
   groups?: GroupMemberListRelationFilter;
   id?: StringFilter;
   notifications?: NotificationListRelationFilter;
-  passwordHash?: StringNullableFilter;
+  password?: StringNullableFilter;
   phoneNumber?: StringNullableFilter;
   profile?: ProfileWhereUniqueInput;
   receivedLikes?: LikeListRelationFilter;
   receivedMessages?: MessageListRelationFilter;
   reports?: ReportListRelationFilter;
+  roles?: StringFilter;
   sentLikes?: LikeListRelationFilter;
   sentMessages?: MessageListRelationFilter;
   socialAccounts?: SocialAccountListRelationFilter;
@@ -38,5 +39,6 @@ export type UserWhereInput = {
   subscription?: SubscriptionWhereUniqueInput;
   trustScore?: FloatFilter;
   updatedAt?: DateTimeFilter;
+  username?: StringFilter;
   verificationStatus?: "PENDING" | "VERIFIED" | "REJECTED";
 };

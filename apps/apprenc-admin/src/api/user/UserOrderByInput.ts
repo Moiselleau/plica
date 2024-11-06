@@ -6,11 +6,13 @@ export type UserOrderByInput = {
   email?: SortOrder;
   emailVerified?: SortOrder;
   id?: SortOrder;
-  passwordHash?: SortOrder;
+  password?: SortOrder;
   phoneNumber?: SortOrder;
   profileId?: SortOrder;
+  roles?: SortOrder;
   subscriptionId?: SortOrder;
   trustScore?: SortOrder;
   updatedAt?: SortOrder;
+  username?: SortOrder;
   verificationStatus?: SortOrder;
 };

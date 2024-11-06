@@ -130,7 +130,7 @@ class User {
   @Field(() => String, {
     nullable: true,
   })
-  passwordHash!: string | null;
+  password!: string | null;
 
   @ApiProperty({
     required: false,
@@ -179,6 +179,15 @@ class User {
   @Type(() => Report)
   @IsOptional()
   reports?: Array<Report>;
+
+  @ApiProperty({
+    required: true,
+    type: String,
+  })
+  @IsString()
+  @MaxLength(1000)
+  @Field(() => String)
+  roles!: string;
 
   @ApiProperty({
     required: false,
@@ -241,6 +250,15 @@ class User {
   @Type(() => Date)
   @Field(() => Date)
   updatedAt!: Date;
+
+  @ApiProperty({
+    required: true,
+    type: String,
+  })
+  @IsString()
+  @MaxLength(1000)
+  @Field(() => String)
+  username!: string;
 
   @ApiProperty({
     required: true,
