@@ -45,6 +45,9 @@ export class SessionControllerBase {
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
   })
+  @swagger.ApiBody({
+    type: SessionCreateInput,
+  })
   async createSession(
     @common.Body() data: SessionCreateInput
   ): Promise<Session> {
@@ -124,6 +127,9 @@ export class SessionControllerBase {
   })
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
+  })
+  @swagger.ApiBody({
+    type: SessionUpdateInput,
   })
   async updateSession(
     @common.Param() params: SessionWhereUniqueInput,

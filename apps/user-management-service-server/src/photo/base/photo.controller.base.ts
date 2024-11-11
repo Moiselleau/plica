@@ -45,6 +45,9 @@ export class PhotoControllerBase {
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
   })
+  @swagger.ApiBody({
+    type: PhotoCreateInput,
+  })
   async createPhoto(@common.Body() data: PhotoCreateInput): Promise<Photo> {
     return await this.service.createPhoto({
       data: {
@@ -154,6 +157,9 @@ export class PhotoControllerBase {
   })
   @swagger.ApiForbiddenResponse({
     type: errors.ForbiddenException,
+  })
+  @swagger.ApiBody({
+    type: PhotoUpdateInput,
   })
   async updatePhoto(
     @common.Param() params: PhotoWhereUniqueInput,
